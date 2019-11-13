@@ -1,0 +1,86 @@
+#
+# Sample config.yml
+#
+
+name: sample
+location:
+  red:
+    x: 10
+    y: 20
+    z: 10
+  blue:
+    x: -10
+    y: 20
+    z: -10
+  spectator:
+    x: 50
+    y: 50
+    z: 50
+kits:
+  red:
+    armor:
+      helmet:
+        material: LEATHER_HELMET
+        leather_color: red
+        enchantments:
+        - PROTECTION_ENVIRONMENTAL:2
+  blue:
+    armor:
+      helmet:
+        material: LEATHER_HELMET
+        leather_color: blue
+        enchantments:
+        - PROTECTION_ENVIRONMENTAL:2
+  parent:
+    inventory:
+      sword:
+        material: IRON_SWORD
+        slot: 0
+        displayName: 'Knife'
+        lore:
+        - oo
+        - &aits a knife
+        enchantments:
+        - DAMAGE_ALL:1
+        - DURABILITY:3
+        unbreakable: true
+      bow:
+        material: BOW
+        slot: 1
+        displayName: 'Super Bow'
+        lore:
+        - oo
+        - &aits a bow
+        enchantments:
+        - ARROW_DAMAGE:1
+        - DURABILITY:3
+        unbreakable: true
+    armor:
+      helmet:
+        material: IRON_HELMET
+        slot: 0
+        enchantments:
+        - DAMAGE_ALL:1
+        - DURABILITY:3
+        unbreakable: false
+      chestplate:
+        material: IRON_CHESTPLATE
+        slot: 0
+        enchantments:
+        - DAMAGE_ALL:1
+        - DURABILITY:3
+        unbreakable: false
+      leggings:
+        material: IRON_LEGGINGS
+        slot: 0
+        enchantments:
+        - DAMAGE_ALL:1
+        - DURABILITY:3
+        unbreakable: false
+      BOOTS:
+        material: IRON_BOOTS
+        slot: 0
+        enchantments:
+        - DAMAGE_ALL:1
+        - DURABILITY:3
+        unbreakable: false

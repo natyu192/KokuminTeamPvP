@@ -1,0 +1,24 @@
+name: KokuminTeamPvP
+main: me.nucha.teampvp.TeamPvP
+version: 0.1
+softdepend: [LunaChat, KokuminServer]
+commands:
+  stats:
+  maps:
+    aliases: [rotation, rot, map]
+  start:
+    permission: kokuminteampvp.start
+  end:
+    permission: kokuminteampvp.end
+  cancelstart:
+    permission: kokuminteampvp.cancelstart
+  cancelcycle:
+    permission: kokuminteampvp.cancelcycle
+  cycle:
+    permission: kokuminteampvp.cycle
+  skipthismap:
+    permission: kokuminteampvp.skipthismap
+  setnext:
+    permission: kokuminteampvp.setnext
+  gameadmin:
+    permission: kokuminteampvp.gameadmin
