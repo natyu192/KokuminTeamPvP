@@ -3,10 +3,10 @@ package me.nucha.teampvp.map.region;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.nucha.teampvp.game.PvPTeam;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
+
+import me.nucha.teampvp.game.PvPTeam;
 
 public class MonumentRegion extends Region {
 
@@ -82,7 +82,7 @@ public class MonumentRegion extends Region {
 			return blocks;
 		List<Location> blocks = new ArrayList<>();
 		RegionIterator regionIterator = new RegionIterator(this);
-		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getCurrentMap());
+		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 		for (RegionPos pos : regionIterator.getPoses()) {
 			double x = pos.getX();
 			double y = pos.getY();

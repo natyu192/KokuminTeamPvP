@@ -1,8 +1,10 @@
 package me.nucha.teampvp.game;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,11 +23,13 @@ public class TeamManager {
 	private int needPlayersToStart;
 	private List<PvPTeam> teams;
 	private PvPTeam spectatorTeam;
+	private HashMap<UUID, PvPTeam> lastTeam;
 
 	public TeamManager(TeamPvP plugin) {
 		this.plugin = plugin;
 		this.needPlayersToStart = 2;
 		this.teams = new ArrayList<>();
+		this.lastTeam = new HashMap<>();
 		this.spectatorTeam = new PvPTeam(ChatColor.AQUA, "Spectator", "thespectatorteam", Bukkit.getMaxPlayers());
 	}
 
@@ -33,16 +37,25 @@ public class TeamManager {
 		if (!spectatorTeam.contains(p)) {
 			return;
 		}
+		if (lastTeam.containsKey(p.getUniqueId())) {
+			joinTeam(p, lastTeam.get(p.getUniqueId()));
+			return;
+		}
 		List<PvPTeam> minimumTeams = new ArrayList<>();
-		int minimumSize = -1;
+		int minimumSize = 999;
 		for (PvPTeam team : teams) {
-			if (minimumSize < team.size()) {
+			if (team.size() == team.getMax()) {
+				continue;
+			}
+			if (team.size() < minimumSize) {
 				minimumTeams.clear();
 				minimumTeams.add(team);
 				minimumSize = team.size();
+				continue;
 			}
-			if (minimumSize == team.size()) {
+			if (team.size() == minimumSize) {
 				minimumTeams.add(team);
+				continue;
 			}
 		}
 		/*for (PvPTeam team : teams) {
@@ -66,9 +79,13 @@ public class TeamManager {
 				} else {
 					Bukkit.broadcastMessage("§aゲームを始めるには後§c" + (needPlayersToStart - total()) + "§a人必要です");
 				}
+			} else {
+				lastTeam.put(p.getUniqueId(), team);
 			}
 			if (MatchState.isState(MatchState.IN_GAME)) {
+				NavigatorManager.setAllowNavigator(p, false);
 				plugin.getGameManager().spawn(p);
+				plugin.getMapManager().sendMapDescription(p);
 			}
 		}
 	}
@@ -100,37 +117,39 @@ public class TeamManager {
 	}
 
 	public void setTeam(Player p, PvPTeam team) {
-		team.join(p);
-		if (team.equals(spectatorTeam)) {
-			if (p.getActivePotionEffects() != null) {
-				for (PotionEffect pot : p.getActivePotionEffects()) {
-					p.removePotionEffect(pot.getType());
+		boolean success = team.join(p);
+		if (success) {
+			if (team.equals(spectatorTeam)) {
+				if (p.getActivePotionEffects() != null) {
+					for (PotionEffect pot : p.getActivePotionEffects()) {
+						p.removePotionEffect(pot.getType());
+					}
 				}
-			}
-			PotionEffect invisibility = new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 60 * 60, 0);
-			PotionEffect night_vision = new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60 * 60, 0);
-			p.addPotionEffect(invisibility);
-			p.addPotionEffect(night_vision);
-			((CraftPlayer) p).spigot().setCollidesWithEntities(false);
-			for (Player all : Bukkit.getOnlinePlayers()) {
-				if (MatchState.isState(MatchState.IN_GAME) && p != all) {
-					p.showPlayer(all);
+				PotionEffect invisibility = new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 60 * 60, 0);
+				PotionEffect night_vision = new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60 * 60, 0);
+				p.addPotionEffect(invisibility);
+				p.addPotionEffect(night_vision);
+				((CraftPlayer) p).spigot().setCollidesWithEntities(false);
+				for (Player all : Bukkit.getOnlinePlayers()) {
+					if (MatchState.isState(MatchState.IN_GAME) && p != all) {
+						p.showPlayer(all);
+					}
 				}
-			}
-		} else {
-			((CraftPlayer) p).spigot().setCollidesWithEntities(true);
-			for (Player all : Bukkit.getOnlinePlayers()) {
-				if (MatchState.isState(MatchState.IN_GAME) && p != all) {
-					if (getTeam(all).equals(spectatorTeam)) {
-						p.hidePlayer(all);
-					} else {
-						all.showPlayer(p);
+			} else {
+				((CraftPlayer) p).spigot().setCollidesWithEntities(true);
+				for (Player all : Bukkit.getOnlinePlayers()) {
+					if (MatchState.isState(MatchState.IN_GAME) && p != all) {
+						if (getTeam(all).equals(spectatorTeam)) {
+							p.hidePlayer(all);
+						} else {
+							all.showPlayer(p);
+						}
 					}
 				}
 			}
-		}
-		if (MatchState.isState(MatchState.WAITING) || MatchState.isState(MatchState.COUNTDOWN)) {
-			ScoreboardUtils.getOrCreateTeam(p, " §f").setSuffix(getTeam(p).getDisplayName());
+			if (MatchState.isState(MatchState.WAITING) || MatchState.isState(MatchState.COUNTDOWN)) {
+				ScoreboardUtils.getOrCreateTeam(p, " §f").setSuffix(getTeam(p).getDisplayName());
+			}
 		}
 	}
 
@@ -202,6 +221,7 @@ public class TeamManager {
 		for (PvPTeam team : teamsClone) {
 			unregisterTeam(team.getId());
 		}
+		lastTeam.clear();
 	}
 
 	public void leaveAll() {

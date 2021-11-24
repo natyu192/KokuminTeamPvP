@@ -43,16 +43,19 @@ public class TDMScoreManager {
 	public void setScore(PvPTeam team, int score) {
 		scores.put(team, score);
 		updateBoard();
+		checkEnd();
 	}
 
 	public void addScore(PvPTeam team, int amount) {
 		scores.put(team, scores.get(team) + amount);
 		updateBoard();
+		checkEnd();
 	}
 
 	public void takeScore(PvPTeam team, int amount) {
 		scores.put(team, scores.get(team) - amount);
 		updateBoard();
+		checkEnd();
 	}
 
 	public int getMaxscore() {
@@ -68,9 +71,11 @@ public class TDMScoreManager {
 				tops.clear();
 				tops.add(team);
 				topscore = scores.get(team);
+				continue;
 			}
 			if (topscore == scores.get(team)) {
 				tops.add(team);
+				continue;
 			}
 		}
 		return tops;
@@ -82,6 +87,18 @@ public class TDMScoreManager {
 				Team sbTeam = ScoreboardUtils.getOrCreateTeam(all, team.getDisplayName());
 				sbTeam.setSuffix(": " + String.valueOf(scores.get(team)));
 			}
+		}
+	}
+
+	private void checkEnd() {
+		List<PvPTeam> winners = new ArrayList<>();
+		for (PvPTeam team : TeamPvP.getInstance().getTeamManager().getTeams()) {
+			if (getScore(team) >= maxscore) {
+				winners.add(team);
+			}
+		}
+		if (!winners.isEmpty()) {
+			TeamPvP.getInstance().getGameManager().endGame(winners);
 		}
 	}
 

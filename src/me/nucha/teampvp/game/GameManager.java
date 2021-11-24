@@ -24,6 +24,7 @@ import me.nucha.teampvp.game.objective.GameObjectiveManager;
 import me.nucha.teampvp.game.stats.StatsCategory;
 import me.nucha.teampvp.game.stats.StatsManager;
 import me.nucha.teampvp.listeners.GuiTeamSelector;
+import me.nucha.teampvp.listeners.KillListener;
 import me.nucha.teampvp.listeners.anni.AnniLocationManager;
 import me.nucha.teampvp.listeners.anni.AnniNexusListener;
 import me.nucha.teampvp.listeners.anni.AnniResourceListener;
@@ -83,15 +84,17 @@ public class GameManager {
 			@Override
 			public void run() {
 				if (i == 0) {
-					Bukkit.broadcastMessage("§a#######################");
-					Bukkit.broadcastMessage("§a# §6ゲームが開始しました！ §a#");
-					Bukkit.broadcastMessage("§a#######################");
+					Bukkit.broadcastMessage("§a=========================");
+					Bukkit.broadcastMessage("§aゲームが開始しました！");
+					Bukkit.broadcastMessage("§a=========================");
 					plugin.setGameObjectiveManager(new GameObjectiveManager());
-					for (Player all : Bukkit.getOnlinePlayers()) {
-						all.playSound(all.getLocation(), Sound.NOTE_PLING, 1f, 2f);
-					}
 					for (Player all : plugin.getTeamManager().getGamePlayers()) {
 						spawn(all);
+						plugin.getMapManager().sendMapDescription(all);
+						NavigatorManager.setAllowNavigator(all, false);
+					}
+					for (Player all : Bukkit.getOnlinePlayers()) {
+						all.playSound(all.getLocation(), Sound.NOTE_PLING, 1f, 2f);
 					}
 					for (Region r : plugin.getKitManager().getRegions()) {
 						plugin.getRegionManager().registerRegion(r);
@@ -161,20 +164,26 @@ public class GameManager {
 			}
 			winners = new String(winnersBuilder);
 		}
-		Bukkit.broadcastMessage("§a#######################");
-		Bukkit.broadcastMessage("§a# §6ゲームが終了しました！ §a#");
+		Bukkit.broadcastMessage("§a=========================");
+		Bukkit.broadcastMessage("§a  §6ゲームが終了しました！");
 		if (winTeam == null || winTeam.size() == 0) {
-			Bukkit.broadcastMessage("§a# §e引き分けです... §a#");
+			Bukkit.broadcastMessage("§a  §e引き分けです...");
 		} else {
-			Bukkit.broadcastMessage("§a# " + winners + "§aの勝利！ §a#");
+			Bukkit.broadcastMessage("§a  " + winners + "§aの勝利！");
 		}
-		Bukkit.broadcastMessage("§a#######################");
+		Bukkit.broadcastMessage("§a=========================");
 		for (Player all : Bukkit.getOnlinePlayers()) {
+			if (all.isDead()) {
+				KillListener.respawn(all);
+			}
+			NavigatorManager.setAllowNavigator(all, true);
 			all.setGameMode(GameMode.CREATIVE);
+			all.getInventory().clear();
 			all.setFoodLevel(20);
 			all.setHealth(20);
 			if (winTeam != null) {
-				TitleUtil.sendTitle(all, winners + "§aが勝ちました！", EnumTitleAction.TITLE, 20, 60, 20);
+				TitleUtil.sendTitle(all, winners, EnumTitleAction.TITLE, 20, 60, 20);
+				TitleUtil.sendTitle(all, "§aが勝ちました！", EnumTitleAction.SUBTITLE, 20, 60, 20);
 			} else {
 				TitleUtil.sendTitle(all, "§7引き分け", EnumTitleAction.TITLE, 20, 60, 20);
 			}
@@ -243,7 +252,7 @@ public class GameManager {
 					Team team = ScoreboardUtils.getOrCreateTeam(all, "Duration: §b");
 					team.setSuffix(ScoreboardUtils.toMinAndSec(i));
 				}
-				if (getTeamGameType() == TeamGameType.TDM && i == 60 * 5) {
+				if (getTeamGameType() == TeamGameType.TDM && i >= ((TDMConfig) plugin.getMapManager().getCurrentMapInfo().getMapConfig()).getTime()) {
 					TDMScoreManager tdmScoreManager = plugin.getTdmScoreManager();
 					endGame(tdmScoreManager.getTops());
 				}
@@ -274,28 +283,26 @@ public class GameManager {
 				if (i == 0) {
 					MapManager mapManager = plugin.getMapManager();
 					TeamManager teamManager = plugin.getTeamManager();
-					if (plugin.getMapInfos().size() == 1) {
+					/*if (plugin.getMapInfos().size() == 1) {
 						for (Player all : Bukkit.getOnlinePlayers()) {
 							all.kickPlayer("§c接続し直してください！");
 						}
-					}
+					}*/
 					Bukkit.getScheduler().cancelTask(fireworkTaskId);
-					String nextMap;
-					if (next == null)
-						nextMap = mapManager.getNextMap();
-					else
-						nextMap = next;
+					String nextMap = next == null ? mapManager.getNextMap() : next;
 					// mapManager.loadMap(nextMap);
+					// Bukkit.broadcastMessage("§6次のマップを読み込んでいます...: §e" + nextMap);
 					mapManager.setCurrentMap(nextMap);
-					Bukkit.broadcastMessage("§6次のマップを読み込んでいます...: §e" + nextMap);
-					Bukkit.broadcastMessage("§eマップを読み込みました。テレポートします...");
+					// Bukkit.broadcastMessage("§eマップを読み込みました。テレポートします...");
 					MatchState.setState(MatchState.WAITING);
 					KitManager kitManager = plugin.getKitManager();
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						all.teleport(kitManager.getSpectatorSpawn());
 						teamManager.setTeam(all, teamManager.getSpectatorTeam());
 						plugin.getKitManager().setSpectatorItem(all);
+						GuiTeamSelector.open(all);
 						all.setGameMode(GameMode.CREATIVE);
+						mapManager.sendMapInformation(all);
 					}
 					// GuiTeamSelector.update();
 					GuiTeamSelector.init(plugin);

@@ -2,9 +2,11 @@ package me.nucha.teampvp.map;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
@@ -21,71 +23,71 @@ public class MapManager {
 	private TeamPvP plugin;
 	private String currentMap;
 	private String nextMap;
+	private String theWorldNameThatUsing;
 
 	public MapManager(TeamPvP plugin) {
 		this.plugin = plugin;
+		this.theWorldNameThatUsing = "match1";
 	}
 
 	public void loadMap(String name) {
 		if (plugin.getMapInfos().size() > 0) {
-			TeamPvP.sendConsoleMessage("§bMap " + name + " を読み込みます...");
-			try {
-				Bukkit.unloadWorld(getCurrentMap(), false);
-			} catch (IllegalArgumentException e) {
-
-			}
-			boolean found = false;
 			for (MapInfo mapInfo : plugin.getMapInfos()) {
 				if (mapInfo.getName().equalsIgnoreCase(name)) {
-					found = true;
 					loadMap(mapInfo);
+					return;
 				}
 			}
-			if (!found) {
-				TeamPvP.sendConsoleMessage("§cMap " + name + " が見つかりません");
-			}
+			TeamPvP.sendConsoleMessage("§cMap " + name + " が見つかりません");
 		}
 	}
 
 	public void loadMap(MapInfo mapInfo) {
 		if (plugin.getMapInfos().size() > 0) {
 			TeamPvP.sendConsoleMessage("§bMap " + mapInfo.getName() + " を読み込みます...");
-			try {
-				Bukkit.unloadWorld(getCurrentMap(), false);
-			} catch (IllegalArgumentException e) {
-
+			if (theWorldNameThatUsing.equalsIgnoreCase("match1")) {
+				theWorldNameThatUsing = "match2";
+			} else {
+				theWorldNameThatUsing = "match1";
 			}
-			if (Bukkit.getWorld(mapInfo.getName()) != null) {
+			try {
+				Bukkit.unloadWorld(theWorldNameThatUsing, false);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				TeamPvP.sendConsoleMessage("§cWorld " + getCurrentMap() + "(" + theWorldNameThatUsing + ") をアンロード中にエラーが発生しました");
+			}
+			/*if (Bukkit.getWorld(mapInfo.getName()) != null) {
 				TeamPvP.sendConsoleMessage("§eMap " + mapInfo.getName() + " が存在するため、アンロードします");
 				Bukkit.unloadWorld(mapInfo.getName(), false);
-			}
+			}*/
 			TeamPvP.sendConsoleMessage("§9コピー中...");
-			File worldFile = new File(Bukkit.getWorldContainer(), mapInfo.getName());
+			File worldFile = new File(Bukkit.getWorldContainer(), theWorldNameThatUsing);
 			if (!worldFile.exists()) {
 				worldFile.mkdir();
 			}
-			File datFile = new File(worldFile + "/level.dat");
-			File ymlFile = new File(worldFile + "/config.yml");
-			File dest_data = new File(worldFile, "data");
+			File datFile = new File(worldFile, "level.dat");
+			File ymlFile = new File(worldFile, "config.yml");
 			File dest_region = new File(worldFile, "region");
-			// datFile.delete();
-			// ymlFile.delete();
-			dest_data.delete();
-			dest_region.delete();
-			File dest_dat = new File(mapInfo.getWorldFile() + "/level.dat");
-			File dest_yml = new File(mapInfo.getWorldFile().getParentFile() + "/config.yml");
+			// File dest_data = new File(worldFile, "data");
+			/*datFile.delete();
+			ymlFile.delete();
+			dest_region.delete();*/
+			// dest_data.delete();
+			File dest_dat = new File(mapInfo.getWorldFile(), "level.dat");
+			File dest_yml = new File(mapInfo.getWorldFile().getParentFile(), "config.yml");
 			try {
 				if (!dest_dat.exists())
 					dest_dat.createNewFile();
 				if (!dest_yml.exists())
 					dest_yml.createNewFile();
 			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 			try {
 				Files.copy(new File(mapInfo.getWorldFile() + "/level.dat"), datFile);
 				Files.copy(new File(mapInfo.getWorldFile().getParentFile() + "/config.yml"), ymlFile);
-				FileUtils.copyDirectory(new File(mapInfo.getWorldFile() + "/data"), dest_data);
 				FileUtils.copyDirectory(new File(mapInfo.getWorldFile() + "/region"), dest_region);
+				// FileUtils.copyDirectory(new File(mapInfo.getWorldFile() + "/data"), dest_data);
 			} catch (IOException e) {
 				TeamPvP.sendConsoleMessage("§cMap " + mapInfo.getName() + " をコピー中にエラーが発生しました");
 				e.printStackTrace();
@@ -115,19 +117,21 @@ public class MapManager {
 				}
 				}*/
 			TeamPvP.sendConsoleMessage("§9読み込み中...");
-			WorldCreator wc = new WorldCreator(mapInfo.getName());
+			mapInfo.setConfigFile(ymlFile);
+			WorldCreator wc = new WorldCreator(theWorldNameThatUsing);
 			wc.generator(new NullChunkGenerator());
 			World world = Bukkit.getServer().createWorld(wc);
 			world.setAutoSave(false);
 			world.setKeepSpawnInMemory(false);
 			world.setGameRuleValue("doMobSpawning", "false");
 			TeamPvP.sendConsoleMessage("§bMap " + mapInfo.getName() + " の読み込みが完了しました");
+			nextMap = null;
 		}
 	}
 
 	public MapInfo getMapInfoByName(String name) {
 		for (MapInfo mapInfo : plugin.getMapInfos()) {
-			if (mapInfo.getName().equals(name)) {
+			if (mapInfo.getName().equalsIgnoreCase(name)) {
 				return mapInfo;
 			}
 		}
@@ -172,6 +176,40 @@ public class MapManager {
 
 	public MapInfo getCurrentMapInfo() {
 		return getMapInfoByName(currentMap);
+	}
+
+	public void sendMapInformation(Player p) {
+		p.sendMessage("§5--------------------------------------------------");
+		p.sendMessage("§2Map: §a" + getCurrentMapInfo().getName());
+		String authors = getCurrentMapInfo().getAuthors();
+		if (!authors.isEmpty()) {
+			p.sendMessage("§2Author(s): §a" + authors);
+		}
+		List<String> description = getCurrentMapInfo().getMapConfig().getDescription();
+		if (description != null && !description.isEmpty()) {
+			p.sendMessage("");
+			for (String descriptionLine : description) {
+				descriptionLine = ChatColor.translateAlternateColorCodes('&', descriptionLine);
+				p.sendMessage("§e" + descriptionLine);
+			}
+		}
+		p.sendMessage("§5--------------------------------------------------");
+	}
+
+	public void sendMapDescription(Player p) {
+		List<String> description = getCurrentMapInfo().getMapConfig().getDescription();
+		if (description != null) {
+			p.sendMessage("");
+			for (String desc : description) {
+				desc = ChatColor.translateAlternateColorCodes('&', desc);
+				p.sendMessage("§b" + desc);
+			}
+			p.sendMessage("");
+		}
+	}
+
+	public String getTheWorldNameThatUsing() {
+		return theWorldNameThatUsing;
 	}
 
 }

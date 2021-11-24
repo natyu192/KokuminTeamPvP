@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.nucha.kokumin.coin.Coin;
 import me.nucha.teampvp.api.TeamPvPApi;
 import me.nucha.teampvp.commands.CommandCancelCycle;
 import me.nucha.teampvp.commands.CommandCancelStart;
@@ -22,24 +23,29 @@ import me.nucha.teampvp.commands.CommandCycle;
 import me.nucha.teampvp.commands.CommandEnd;
 import me.nucha.teampvp.commands.CommandGameAdmin;
 import me.nucha.teampvp.commands.CommandMaps;
+import me.nucha.teampvp.commands.CommandMatch;
 import me.nucha.teampvp.commands.CommandSetNext;
 import me.nucha.teampvp.commands.CommandSkipThisMap;
+import me.nucha.teampvp.commands.CommandStaff;
 import me.nucha.teampvp.commands.CommandStart;
 import me.nucha.teampvp.commands.CommandStats;
 import me.nucha.teampvp.game.GameManager;
 import me.nucha.teampvp.game.KitManager;
 import me.nucha.teampvp.game.MatchState;
+import me.nucha.teampvp.game.NavigatorManager;
 import me.nucha.teampvp.game.TeamManager;
 import me.nucha.teampvp.game.objective.GameObjectiveManager;
 import me.nucha.teampvp.game.stats.StatsManager;
 import me.nucha.teampvp.game.tnt.TNTManager;
 import me.nucha.teampvp.listeners.BlockProtectionListener;
 import me.nucha.teampvp.listeners.ChatListener;
+import me.nucha.teampvp.listeners.CoinDropListener;
 import me.nucha.teampvp.listeners.GuiTeamSelector;
 import me.nucha.teampvp.listeners.KillListener;
 import me.nucha.teampvp.listeners.PlayerListener;
 import me.nucha.teampvp.listeners.RegionListener;
 import me.nucha.teampvp.listeners.TNTListener;
+import me.nucha.teampvp.listeners.TutorialListener;
 import me.nucha.teampvp.listeners.anni.AnniLocationManager;
 import me.nucha.teampvp.listeners.ctw.CTWWoolManager;
 import me.nucha.teampvp.listeners.dtm.DTMMonumentManager;
@@ -47,11 +53,14 @@ import me.nucha.teampvp.listeners.tdm.TDMScoreManager;
 import me.nucha.teampvp.map.MapInfo;
 import me.nucha.teampvp.map.MapManager;
 import me.nucha.teampvp.map.region.RegionManager;
+import me.nucha.teampvp.staff.StaffListener;
+import me.nucha.teampvp.staff.StaffManager;
 import me.nucha.teampvp.utils.ColorUtils;
 import me.nucha.teampvp.utils.ConfigUtil;
 import me.nucha.teampvp.utils.ScoreboardUtils;
 import me.nucha.teampvp.utils.SoulBound;
 import me.nucha.teampvp.utils.SymbolUtils;
+import me.nucha.teampvp.utils.UUIDUtils;
 
 public class TeamPvP extends JavaPlugin {
 
@@ -90,8 +99,8 @@ public class TeamPvP extends JavaPlugin {
 
 		loadMaps();
 		loadManagers();
-		loadCommands();
 		loadListeners();
+		loadCommands();
 
 		pl_lunachat = Bukkit.getPluginManager().getPlugin("LunaChat") != null;
 		pl_kokuminserver = Bukkit.getPluginManager().getPlugin("KokuminServer") != null;
@@ -99,7 +108,8 @@ public class TeamPvP extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-
+		UUIDUtils.shutdown();
+		StaffManager.shutdown();
 	}
 
 	private void loadMaps() {
@@ -165,6 +175,7 @@ public class TeamPvP extends JavaPlugin {
 
 	private void loadManagers() {
 		ColorUtils.init(this);
+		UUIDUtils.init(this);
 		mapManager = new MapManager(this);
 		gameManager = new GameManager(this);
 		teamManager = new TeamManager(this);
@@ -180,19 +191,23 @@ public class TeamPvP extends JavaPlugin {
 		anniLocationManager = new AnniLocationManager(this);
 
 		ScoreboardUtils.plugin(this);
+		StaffManager.init(this);
+		NavigatorManager.init(this);
 	}
 
 	private void loadCommands() {
 		registerCommand("stats", new CommandStats(this), "戦績を表示します");
 		registerCommand("maps", new CommandMaps(this), "使用されているマップ一覧を表示します");
-		registerCommand("start", new CommandStart(this), "試合を開始します");
-		registerCommand("end", new CommandEnd(this), "試合を強制終了します");
+		registerCommand("gamestart", new CommandStart(this), "試合を開始します");
+		registerCommand("gameend", new CommandEnd(this), "試合を強制終了します");
 		registerCommand("cancelstart", new CommandCancelStart(this), "試合開始をキャンセルします");
 		registerCommand("cancelcycle", new CommandCancelCycle(this), "次のマップへの移動をキャンセルします");
 		registerCommand("cycle", new CommandCycle(this), "次のマップへ移動します");
 		registerCommand("skipthismap", new CommandSkipThisMap(this), "試合開始前に現在のマップをやらずに、次のマップへ移動します");
 		registerCommand("setnext", new CommandSetNext(this), "次のマップを指定します");
 		registerCommand("gameadmin", new CommandGameAdmin(this), "ゲーム管理用のコマンドです");
+		registerCommand("match", new CommandMatch(this), "試合の情報を表示します");
+		registerCommand("staff", new CommandStaff(this), "管理者モードを切り替えます");
 	}
 
 	private void registerCommand(String commandName, CommandExecutor executor, String description) {
@@ -207,12 +222,15 @@ public class TeamPvP extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new SoulBound(), this);
 		pm.registerEvents(new PlayerListener(this), this);
-		pm.registerEvents(new GuiTeamSelector(this), plugin);
-		pm.registerEvents(new KillListener(this), plugin);
-		pm.registerEvents(new ChatListener(this), plugin);
-		pm.registerEvents(new RegionListener(this), plugin);
-		pm.registerEvents(new TNTListener(this), plugin);
-		pm.registerEvents(new BlockProtectionListener(), plugin);
+		pm.registerEvents(new CoinDropListener(this), this);
+		pm.registerEvents(new TutorialListener(this), this);
+		pm.registerEvents(new GuiTeamSelector(this), this);
+		pm.registerEvents(new KillListener(this), this);
+		pm.registerEvents(new ChatListener(this), this);
+		pm.registerEvents(new RegionListener(this), this);
+		pm.registerEvents(new TNTListener(this), this);
+		pm.registerEvents(new BlockProtectionListener(), this);
+		pm.registerEvents(new StaffListener(), this);
 	}
 
 	public static TeamPvP getInstance() {
@@ -327,6 +345,17 @@ public class TeamPvP extends JavaPlugin {
 
 	public static void sendWarnMessage(Player p, String text) {
 		p.sendMessage("§e" + SymbolUtils.warn() + " §c" + text);
+	}
+
+	public static void addCoin(Player p, int amount, String message) {
+		CoinDropListener.drop(p, p.getLocation().add(0, 1.9, 0));
+		if (pl_kokuminserver && message != null && !message.isEmpty()) {
+			Coin.addCoin(p, amount, message);
+		}
+	}
+
+	public static void addCoin(Player k, int i) {
+		addCoin(k, i, null);
 	}
 
 }

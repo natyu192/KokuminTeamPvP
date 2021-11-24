@@ -3,6 +3,7 @@ package me.nucha.teampvp.listeners;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +12,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.nucha.kokumin.coin.Coin;
 import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.TeamGameType;
 import me.nucha.teampvp.game.stats.StatsCategory;
@@ -23,18 +23,94 @@ import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand.EnumClientCommand;
 public class KillListener implements Listener {
 
 	private TeamPvP plugin;
+	// private List<Player> respawning;
 
 	public KillListener(TeamPvP plugin) {
 		this.plugin = plugin;
+		// this.respawning = new ArrayList<>();
 	}
+
+	/*@EventHandler(ignoreCancelled = true)
+	public void onDamage(EntityDamageEvent event) {
+		if (event.getEntity() instanceof Player) {
+			Player p = (Player) event.getEntity();
+			if (MatchState.isState(MatchState.IN_GAME) && event.getCause() == DamageCause.VOID && !respawning.contains(p)) {
+				event.setDamage(40);
+			}
+			if (p.getHealth() <= event.getFinalDamage()) {
+				event.setDamage(0);
+				List<ItemStack> drops = new ArrayList<>();
+				for (ItemStack content : p.getInventory().getContents())
+					drops.add(content);
+				for (ItemStack armor : p.getInventory().getArmorContents())
+					drops.add(armor);
+				Bukkit.getServer().getPluginManager().callEvent(new PlayerDeathEvent(p, drops, 0, null));
+				p.getInventory().clear();
+				ItemStack air = new ItemStack(Material.AIR);
+				p.getInventory().setArmorContents(new ItemStack[] { air, air, air, air });
+				p.setFlying(true);
+				p.setHealth(20);
+				p.setSaturation(3);
+				p.setFoodLevel(20);
+				p.setFireTicks(0);
+				respawning.add(p);
+				p.playSound(p.getLocation(), Sound.IRONGOLEM_DEATH, 1f, 1f);
+				BukkitRunnable task = new BukkitRunnable() {
+					double respawnTimeMax = 3;
+					double respawnTime = respawnTimeMax;
+	
+					@Override
+					public void run() {
+						if (!MatchState.isState(MatchState.IN_GAME) || p == null || !p.isOnline()) {
+							respawning.remove(p);
+							cancel();
+							return;
+						}
+						if (respawnTime == respawnTimeMax) {
+							PotionEffect effectBlind = new PotionEffect(PotionEffectType.BLINDNESS, (int) respawnTimeMax * 20, 0);
+							p.addPotionEffect(effectBlind);
+							TitleUtil.sendTitle(p, "§c死んでしまった！", EnumTitleAction.TITLE, 2, (int) respawnTimeMax * 20, 2);
+						}
+						if (respawnTime == 0) {
+							TitleUtil.sendTitle(p, "§aリスポーンしました", EnumTitleAction.TITLE, 2, 40, 2);
+							respawning.remove(p);
+							for (PotionEffect effect : p.getActivePotionEffects()) {
+								p.removePotionEffect(effect.getType());
+							}
+							KitManager kitManager = plugin.getKitManager();
+							TeamManager teamManager = plugin.getTeamManager();
+							PvPTeam team = teamManager.getTeam(p);
+							if (team == teamManager.getSpectatorTeam() || !(MatchState.isState(MatchState.IN_GAME))) {
+								p.teleport(kitManager.getSpectatorSpawn());
+							} else {
+								p.teleport(kitManager.getSpawn(team));
+							}
+							GameManager gameManager = plugin.getGameManager();
+							gameManager.giveKit(p);
+							cancel();
+							return;
+						}
+						if (respawnTime > 0) {
+							double formattedTime = new BigDecimal(respawnTime).setScale(1, BigDecimal.ROUND_DOWN).doubleValue();
+							TitleUtil.sendTitle(p, "§aリスポーンまで §e" + formattedTime + " §a秒...", EnumTitleAction.SUBTITLE);
+							respawnTime -= 0.1;
+						}
+					}
+				};
+				task.runTaskTimer(plugin, 2L, 2L);
+				p.teleport(p.getLocation().add(0, 3, 0));
+			}
+		}
+	}*/
 
 	@EventHandler
 	public void onDeath(PlayerDeathEvent event) {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		Player p = (Player) event.getEntity();
+		Player p = event.getEntity();
 		BukkitRunnable respawnTask = new BukkitRunnable() {
+			@Override
 			public void run() {
 				if (p != null && p.isOnline() && p.isDead()) {
 					respawn(p);
@@ -148,9 +224,10 @@ public class KillListener implements Listener {
 			String deathMessageClone = deathMessage;
 			if (p.getName().equalsIgnoreCase(all.getName())
 					|| (p.getKiller() != null && p.getKiller().getName().equalsIgnoreCase(all.getName()))) {
-				deathMessageClone = deathMessageClone.replaceAll("§7", "§7§l");
-				deathMessageClone = deathMessageClone.replaceAll("§c", "§c§l");
-				deathMessageClone = deathMessageClone.replaceAll("§9", "§9§l");
+				for (ChatColor color : ChatColor.values()) {
+					char colorChar = color.getChar();
+					deathMessageClone = deathMessageClone.replaceAll("§" + colorChar, "§" + colorChar + "§l");
+				}
 			}
 			all.sendMessage(deathMessageClone);
 		}
@@ -162,9 +239,9 @@ public class KillListener implements Listener {
 			statsManager.getStatsInfo(k).add(StatsCategory.KILLS, 1);
 			if (TeamPvP.pl_kokuminserver) {
 				if (plugin.getGameManager().getTeamGameType() == TeamGameType.TDM) {
-					Coin.addCoin(k, 50, TeamGameType.TDM.getDisplayName() + "ボーナス");
+					TeamPvP.addCoin(k, 50, TeamGameType.TDM.getDisplayName() + "ボーナス");
 				} else {
-					Coin.addCoin(k, 30);
+					TeamPvP.addCoin(k, 30);
 				}
 			}
 			List<ConfigItem> killRewards = plugin.getKitManager().getKillRewards();
@@ -194,7 +271,7 @@ public class KillListener implements Listener {
 		return typename;
 	}
 
-	public void respawn(Player p) {
+	public static void respawn(Player p) {
 		((CraftPlayer) p).getHandle().playerConnection.a(new PacketPlayInClientCommand(EnumClientCommand.PERFORM_RESPAWN));
 	}
 

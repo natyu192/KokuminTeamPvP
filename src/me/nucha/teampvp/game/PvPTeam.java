@@ -56,9 +56,9 @@ public class PvPTeam {
 		return teamMembers;
 	}
 
-	public void join(Player p) {
+	public boolean join(Player p) {
 		if (teamMembers.size() >= max || teamMembers.contains(p)) {
-			return;
+			return false;
 		}
 		p.setDisplayName(color + p.getName() + "§r");
 		((CraftPlayer) p).spigot().setCollidesWithEntities(true);
@@ -80,6 +80,7 @@ public class PvPTeam {
 				}
 			}
 		}
+		return true;
 	}
 
 	public void leave(Player p, boolean beSpectator) {

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.nucha.teampvp.TeamPvP;
+import me.nucha.teampvp.listeners.TutorialListener;
 import me.nucha.teampvp.map.config.MapConfig;
 import me.nucha.teampvp.map.item.ConfigItem;
 import me.nucha.teampvp.map.item.KitItem;
@@ -30,6 +31,10 @@ public class KitManager {
 	private List<Region> regions;
 	private List<PvPTeam> teams;
 
+	private ItemStack item_teleport;
+	private ItemStack item_teamSelector;
+	private ItemStack item_tutorial;
+
 	public KitManager(TeamPvP plugin, MapConfig mc) {
 		spectatorSpawn = mc.getSpawnSpectator();
 		spawns = new HashMap<>();
@@ -42,6 +47,7 @@ public class KitManager {
 		allowDamage = mc.allowDamage();
 		teams = mc.getTeams();
 		killRewards = mc.getKillRewards();
+		TutorialListener.setTutorials(mc.getTutorials());
 		plugin.getTeamManager().unregisterAllTeam();
 		for (PvPTeam team : teams) {
 			plugin.getTeamManager().registerTeam(team.getColor(), team.getName(), team.getId(), team.getMax());
@@ -52,6 +58,11 @@ public class KitManager {
 			kitInventories.put(team, mc.getInventoryKit(team));
 			kitArmors.put(team, mc.getArmorKit(team));
 		}
+		item_teleport = new CustomItem(Material.COMPASS, 1, "§cテレポートコンパス", "§7左クリックすると", "§7目の先にある奥のブロックに", "§7テレポートできます", "",
+				"§7右クリックすると", "§7目の前にある壁の奥に", "§7テレポートできます");
+		item_teamSelector = new CustomItem(Material.NETHER_STAR, 1, "§aチーム選択", "§7右クリックすると", "§7チーム選択メニューが開けます");
+		item_tutorial = new CustomItem(Material.BOOK, 1,
+				"§eチュートリアル", "§7右クリックすると", "§7マップのチュートリアルを進めます", "", "§7左クリックすると", "§7マップのチュートリアルを戻ります");
 	}
 
 	public Location getSpectatorSpawn() {
@@ -106,11 +117,11 @@ public class KitManager {
 		p.getInventory().clear();
 		ItemStack air = new ItemStack(Material.AIR);
 		p.getInventory().setArmorContents(new ItemStack[] { air, air, air, air });
-		ItemStack teleport = new CustomItem(Material.COMPASS, 1, "§cテレポートコンパス", "§7左クリックすると", "§7目の先にある奥のブロックに", "§7テレポートできます", "",
-				"§7右クリックすると", "§7目の前にある壁の奥に", "§7テレポートできます");
-		ItemStack teamSelector = new CustomItem(Material.NETHER_STAR, 1, "§aチーム選択", "§7右クリックすると", "§7チーム選択メニューが開けます");
-		p.getInventory().setItem(0, teleport);
-		p.getInventory().setItem(1, teamSelector);
+		p.getInventory().setItem(0, item_teleport);
+		p.getInventory().setItem(1, item_teamSelector);
+		if (!TutorialListener.getTutorials().isEmpty()) {
+			p.getInventory().setItem(2, item_tutorial);
+		}
 		p.getInventory().setHeldItemSlot(1);
 		p.updateInventory();
 	}

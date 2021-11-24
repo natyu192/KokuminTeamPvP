@@ -3,16 +3,6 @@ package me.nucha.teampvp.listeners;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.nucha.teampvp.TeamPvP;
-import me.nucha.teampvp.game.tnt.TNTInfo;
-import net.minecraft.server.v1_8_R3.BlockPosition;
-import net.minecraft.server.v1_8_R3.EntityHuman;
-import net.minecraft.server.v1_8_R3.EntityTNTPrimed;
-import net.minecraft.server.v1_8_R3.Explosion;
-import net.minecraft.server.v1_8_R3.Item;
-import net.minecraft.server.v1_8_R3.Items;
-import net.minecraft.server.v1_8_R3.World;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,6 +22,16 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import me.nucha.teampvp.TeamPvP;
+import me.nucha.teampvp.game.tnt.TNTInfo;
+import net.minecraft.server.v1_8_R3.BlockPosition;
+import net.minecraft.server.v1_8_R3.EntityHuman;
+import net.minecraft.server.v1_8_R3.EntityTNTPrimed;
+import net.minecraft.server.v1_8_R3.Explosion;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.Items;
+import net.minecraft.server.v1_8_R3.World;
 
 public class TNTListener implements Listener {
 
@@ -127,6 +127,7 @@ public class TNTListener implements Listener {
 				TeamPvP.sendConsoleMessage("tntInfo == null on doPhysics");
 				return;
 			}
+			event.setCancelled(true);// disable original TNT
 			Player p = tntInfo.getOwner();
 			doPhysics(((CraftWorld) b.getWorld()).getHandle(), b.getLocation(), p);
 		}
@@ -135,6 +136,7 @@ public class TNTListener implements Listener {
 	private EntityTNTPrimed primeTnt(World world, Location location, Player source) {
 		EntityTNTPrimed entitytntprimed = new EntityTNTPrimed(world, (float) location.getX() + 0.5F, location.getY(),
 				(float) location.getZ() + 0.5F, ((CraftPlayer) source).getHandle());
+		location.getBlock().setType(Material.AIR);
 		world.addEntity(entitytntprimed);
 		world.makeSound(entitytntprimed, "game.tnt.primed", 1.0F, 1.0F);
 		TNTInfo tntInfo = plugin.getTntManager().getInfoByBlock(location.getBlock());

@@ -137,11 +137,9 @@ public class WoolObjective extends GameObjective {
 			Team localTeam = ScoreboardUtils.getOrCreateTeam(all, localTeamName);
 			if (getState() == GameObjectiveState.IN_COPLETE) {
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r");
-			}
-			if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r");
-			}
-			if (getState() == GameObjectiveState.COPLETED) {
+			} else if (getState() == GameObjectiveState.COPLETED) {
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r");
 			}
 		}
@@ -155,13 +153,24 @@ public class WoolObjective extends GameObjective {
 		Team localTeam = ScoreboardUtils.getOrCreateTeam(p, localTeamName);
 		if (getState() == GameObjectiveState.IN_COPLETE) {
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r");
-		}
-		if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r");
-		}
-		if (getState() == GameObjectiveState.COPLETED) {
+		} else if (getState() == GameObjectiveState.COPLETED) {
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r");
 		}
+	}
+
+	@Override
+	public String getText() {
+		String prefix = null;
+		if (getState() == GameObjectiveState.IN_COPLETE) {
+			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r";
+		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r";
+		} else if (getState() == GameObjectiveState.COPLETED) {
+			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r";
+		}
+		return prefix + getWoolName();
 	}
 
 	public DyeColor getColor() {

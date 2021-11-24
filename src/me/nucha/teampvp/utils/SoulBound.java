@@ -3,8 +3,6 @@ package me.nucha.teampvp.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.nucha.teampvp.utils.ParticleEffect.ItemData;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,6 +16,8 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+
+import me.nucha.teampvp.utils.ParticleEffect.ItemData;
 
 public class SoulBound implements Listener {
 
@@ -82,7 +82,8 @@ public class SoulBound implements Listener {
 			for (Player all : Bukkit.getOnlinePlayers()) {
 				all.playSound(p.getLocation(), Sound.ITEM_BREAK, 3, 3);
 			}
-			ItemData data = new ItemData(event.getItemDrop().getItemStack().getType(), (byte) 0);
+			ItemStack item = event.getItemDrop().getItemStack();
+			ItemData data = new ItemData(item.getType(), (byte) item.getDurability());
 			Location l = p.getLocation();
 			Vector d = l.getDirection();
 			l.add(d.multiply(2));

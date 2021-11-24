@@ -36,7 +36,7 @@ public class CTWConfig extends MapConfig {
 				double x = section.getDouble("x");
 				double y = section.getDouble("y");
 				double z = section.getDouble("z");
-				World world = Bukkit.getWorld(getName());
+				World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 				Location location = new Location(world, x, y, z);
 				String wooldef = color.name().toUpperCase();
 				String wool1 = wooldef.substring(0, 1);

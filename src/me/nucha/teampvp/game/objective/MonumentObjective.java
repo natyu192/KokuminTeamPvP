@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.NumberConversions;
 
-import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamGameType;
 import me.nucha.teampvp.map.region.MonumentRegion;
@@ -65,41 +64,36 @@ public class MonumentObjective extends GameObjective {
 
 	@Override
 	public void updateStateOnScoreboard() {
-		Bukkit.getScheduler().runTask(TeamPvP.getInstance(), () -> {
-			int max = 0;
-			int value = 0;
-			for (Location l : monumentRegion.getBlocks()) {
-				if (monumentRegion.getDefaultBlocks().get(l) != Material.AIR) {
-					max++;
-				}
-				if (monumentRegion.isBroken(l)) {
-					value++;
-				}
+		int max = 0;
+		int value = 0;
+		for (Location l : monumentRegion.getBlocks()) {
+			if (monumentRegion.getDefaultBlocks().get(l) != Material.AIR) {
+				max++;
 			}
-			for (Player all : Bukkit.getOnlinePlayers()) {
-				String localTeamName = getDisplayName();
-				int percentage = NumberConversions.floor(MathUtils.percentage(max, value));
-				String localTeamSuffix = " §e" + percentage + "%§r";
-				if (percentage == 0) {
-					localTeamSuffix = " §c" + percentage + "%§r";
-				}
-				if (percentage == 100) {
-					localTeamSuffix = " §a" + percentage + "%§r";
-				}
-				Team localTeam = ScoreboardUtils.getOrCreateTeam(all, localTeamName + getOwnTeam().getColor());
-				if (getState() == GameObjectiveState.IN_COPLETE) {
-					localTeam.setPrefix(" §c" + SymbolUtils.x() + " §r");
-				}
-				if (getState() == GameObjectiveState.SEMI_COMPLETED) {
-					localTeam.setPrefix(" §e" + SymbolUtils.star(2) + " §r");
-				}
-				if (getState() == GameObjectiveState.COPLETED) {
-					localTeam.setPrefix(" §a" + SymbolUtils.check() + " §r");
-					localTeamSuffix = " §a100%§r";
-				}
-				localTeam.setSuffix(localTeamSuffix);
+			if (monumentRegion.isBroken(l)) {
+				value++;
 			}
-		});
+		}
+		for (Player all : Bukkit.getOnlinePlayers()) {
+			String localTeamName = getDisplayName();
+			int percentage = NumberConversions.floor(MathUtils.percentage(max, value));
+			String localTeamSuffix = " §e" + percentage + "%§r";
+			if (percentage == 0) {
+				localTeamSuffix = " §c" + percentage + "%§r";
+			} else if (percentage == 100) {
+				localTeamSuffix = " §a" + percentage + "%§r";
+			}
+			Team localTeam = ScoreboardUtils.getOrCreateTeam(all, localTeamName + getOwnTeam().getColor());
+			if (getState() == GameObjectiveState.IN_COPLETE) {
+				localTeam.setPrefix(" §c" + SymbolUtils.x() + " §r");
+			} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+				localTeam.setPrefix(" §e" + SymbolUtils.star(2) + " §r");
+			} else if (getState() == GameObjectiveState.COPLETED) {
+				localTeam.setPrefix(" §a" + SymbolUtils.check() + " §r");
+				localTeamSuffix = " §a100%§r";
+			}
+			localTeam.setSuffix(localTeamSuffix);
+		}
 	}
 
 	@Override
@@ -119,22 +113,52 @@ public class MonumentObjective extends GameObjective {
 		String localTeamSuffix = " §e" + percentage + "%§r";
 		if (percentage == 0) {
 			localTeamSuffix = " §c" + percentage + "%§r";
-		}
-		if (percentage == 100) {
+		} else if (percentage == 100) {
 			localTeamSuffix = " §a" + percentage + "%§r";
 		}
 		ScoreboardUtils.replaceScore(p, score, "", localTeamName + getOwnTeam().getColor(), "");
 		Team localTeam = ScoreboardUtils.getOrCreateTeam(p, localTeamName + getOwnTeam().getColor());
 		if (getState() == GameObjectiveState.IN_COPLETE) {
 			localTeam.setPrefix(" §c" + SymbolUtils.x() + " §r");
-		}
-		if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
 			localTeam.setPrefix(" §e" + SymbolUtils.star(2) + " §r");
-		}
-		if (getState() == GameObjectiveState.COPLETED) {
+		} else if (getState() == GameObjectiveState.COPLETED) {
 			localTeam.setPrefix(" §a" + SymbolUtils.check() + " §r");
 			localTeamSuffix = " §a100%§r";
 		}
 		localTeam.setSuffix(localTeamSuffix);
+	}
+
+	@Override
+	public String getText() {
+		int max = 0;
+		int value = 0;
+		for (Location l : monumentRegion.getBlocks()) {
+			if (monumentRegion.getDefaultBlocks().get(l) != Material.AIR) {
+				max++;
+			}
+			if (monumentRegion.isBroken(l)) {
+				value++;
+			}
+		}
+		int percentage = NumberConversions.floor(MathUtils.percentage(max, value));
+		String prefix = null;
+		String suffix = null;
+		if (percentage == 0) {
+			suffix = " §c" + percentage + "%§r";
+		} else if (percentage == 100) {
+			suffix = " §a" + percentage + "%§r";
+		} else {
+			suffix = " §e" + percentage + "%§r";
+		}
+		if (getState() == GameObjectiveState.IN_COPLETE) {
+			prefix = " §c" + SymbolUtils.x() + " §r";
+		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			prefix = " §e" + SymbolUtils.star(2) + " §r";
+		} else if (getState() == GameObjectiveState.COPLETED) {
+			prefix = " §a" + SymbolUtils.check() + " §r";
+			suffix = " §a100%§r";
+		}
+		return prefix + getDisplayName() + getOwnTeam().getColor() + suffix;
 	}
 }

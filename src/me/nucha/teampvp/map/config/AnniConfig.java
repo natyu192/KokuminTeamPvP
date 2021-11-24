@@ -32,7 +32,7 @@ public class AnniConfig extends MapConfig {
 				double x = section.getDouble("x");
 				double y = section.getDouble("y");
 				double z = section.getDouble("z");
-				World world = Bukkit.getWorld(getName());
+				World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 				Location location = new Location(world, x, y, z);
 				furnaces.add(location);
 			}
@@ -53,7 +53,7 @@ public class AnniConfig extends MapConfig {
 				double x = section.getDouble("x");
 				double y = section.getDouble("y");
 				double z = section.getDouble("z");
-				World world = Bukkit.getWorld(getName());
+				World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 				Location location = new Location(world, x, y, z);
 				NexusObjective obj = new NexusObjective(team.getDisplayName(), team, location, hp);
 				nexuses.add(obj);

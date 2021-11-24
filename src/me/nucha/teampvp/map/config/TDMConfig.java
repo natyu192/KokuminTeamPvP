@@ -1,8 +1,8 @@
 package me.nucha.teampvp.map.config;
 
-import me.nucha.teampvp.map.MapInfo;
-
 import org.bukkit.configuration.file.FileConfiguration;
+
+import me.nucha.teampvp.map.MapInfo;
 
 public class TDMConfig extends MapConfig {
 
@@ -15,7 +15,19 @@ public class TDMConfig extends MapConfig {
 	}
 
 	public int getMaxScore() {
-		return getConfig().getInt("maxscore");
+		if (getConfig().isSet("maxscore")) {
+			return getConfig().getInt("maxscore");
+		} else {
+			return 100;
+		}
+	}
+
+	public int getTime() {
+		if (getConfig().isSet("time")) {
+			return getConfig().getInt("time");
+		} else {
+			return 300;
+		}
 	}
 
 }

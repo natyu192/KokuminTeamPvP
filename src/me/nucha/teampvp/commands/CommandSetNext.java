@@ -25,13 +25,9 @@ public class CommandSetNext implements CommandExecutor {
 					mapName += " " + args[i];
 				}
 			}
-			if (plugin.getMapManager().getCurrentMap().equalsIgnoreCase(mapName)) {
-				sender.sendMessage("§c現在プレイ中のマップを指定することはできません");
-				return true;
-			}
 			MapInfo mapInfo = plugin.getMapManager().getMapInfoByName(mapName);
 			if (mapInfo != null) {
-				plugin.getMapManager().setNextMap(mapName);
+				plugin.getMapManager().setNextMap(mapInfo.getName());
 				Bukkit.broadcastMessage("\n      §d" + sender.getName() + " §bによって次のマップが " + mapInfo.getName() + " に指定されました\n ");
 			} else {
 				sender.sendMessage("§6" + mapName + " §cというマップが存在しません");

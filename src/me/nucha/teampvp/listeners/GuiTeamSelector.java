@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamManager;
+import me.nucha.teampvp.staff.StaffManager;
 import me.nucha.teampvp.utils.ColorUtils;
 import me.nucha.teampvp.utils.CustomItem;
 
@@ -109,6 +110,10 @@ public class GuiTeamSelector implements Listener {
 					if (item == null)
 						return;
 					int slot = event.getSlot();
+					if ((slot != 8) && StaffManager.isStaffMode(p)) {
+						p.sendMessage("§c管理者モードがオンになっているため、参加することができません");
+						return;
+					}
 					if (slot == 0) {
 						if (plugin.getTeamManager().getGamePlayers().contains(p)) {
 							p.sendMessage("§c既に参加しています");

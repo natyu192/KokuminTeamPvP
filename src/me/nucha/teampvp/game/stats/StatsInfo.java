@@ -1,5 +1,7 @@
 package me.nucha.teampvp.game.stats;
 
+import java.util.HashMap;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -7,24 +9,30 @@ public class StatsInfo {
 
 	private FileConfiguration yml;
 	private OfflinePlayer p;
-	private int kills;
+	private HashMap<StatsCategory, Integer> stats;
+	/*private int kills;
 	private int deaths;
 	private int wins;
 	private int loses;
-	private int monuments_broken;
+	private int monuments_broken;*/
 
 	public StatsInfo(OfflinePlayer p, FileConfiguration yml) {
 		this.yml = yml;
 		this.p = p;
-		this.kills = StatsCategory.KILLS.register(yml, p);
+		this.stats = new HashMap<>();
+		for (StatsCategory category : StatsCategory.values()) {
+			stats.put(category, category.register(yml, p));
+		}
+		/*this.kills = StatsCategory.KILLS.register(yml, p);
 		this.deaths = StatsCategory.DEATHS.register(yml, p);
 		this.wins = StatsCategory.WINS.register(yml, p);
 		this.loses = StatsCategory.LOSES.register(yml, p);
-		this.monuments_broken = StatsCategory.MONUMENTS_BROKEN.register(yml, p);
+		this.monuments_broken = StatsCategory.MONUMENTS_BROKEN.register(yml, p);*/
 	}
 
 	public int get(StatsCategory category) {
-		switch (category) {
+		return stats.get(category);
+		/*switch (category) {
 		case KILLS:
 			return kills;
 		case DEATHS:
@@ -37,11 +45,11 @@ public class StatsInfo {
 			return monuments_broken;
 		default:
 			return 0;
-		}
+		}*/
 	}
 
 	public void set(StatsCategory category, int value) {
-		switch (category) {
+		/*switch (category) {
 		case KILLS:
 			this.kills = value;
 		case DEATHS:
@@ -54,12 +62,13 @@ public class StatsInfo {
 			this.monuments_broken = value;
 		default:
 			break;
-		}
+		}*/
+		stats.put(category, value);
 		yml.set(p.getUniqueId() + "." + category.getName(), value);
 	}
 
 	public void add(StatsCategory category, int value) {
-		boolean matched = false;
+		/*boolean matched = false;
 		if (category == StatsCategory.KILLS) {
 			this.kills += value;
 			matched = true;
@@ -79,7 +88,10 @@ public class StatsInfo {
 		if (matched) {
 			int before = get(category);
 			yml.set(p.getUniqueId() + "." + category.getName(), before + value);
-		}
+		}*/
+		int before = get(category);
+		stats.put(category, before + value);
+		yml.set(p.getUniqueId() + "." + category.getName(), before + value);
 	}
 
 	public FileConfiguration getYml() {

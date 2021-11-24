@@ -1,13 +1,13 @@
 package me.nucha.teampvp.game.objective;
 
-import me.nucha.teampvp.game.TeamGameType;
-import me.nucha.teampvp.game.PvPTeam;
-import me.nucha.teampvp.utils.ScoreboardUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
+
+import me.nucha.teampvp.game.PvPTeam;
+import me.nucha.teampvp.game.TeamGameType;
+import me.nucha.teampvp.utils.ScoreboardUtils;
 
 public class NexusObjective extends GameObjective {
 
@@ -46,6 +46,11 @@ public class NexusObjective extends GameObjective {
 		ScoreboardUtils.replaceScore(p, score, "", localTeamName, "");
 		Team localTeam = ScoreboardUtils.getOrCreateTeam(p, localTeamName);
 		localTeam.setSuffix("§e" + hp);
+	}
+
+	@Override
+	public String getText() {
+		return getOwnTeam().getDisplayName() + ": §e" + hp;
 	}
 
 	public Location getLocation() {

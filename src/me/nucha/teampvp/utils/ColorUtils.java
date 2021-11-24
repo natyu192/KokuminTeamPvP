@@ -58,6 +58,24 @@ public class ColorUtils {
 		return chatcolor_to_color.get(color);
 	}
 
+	public static ChatColor COLOR_TO_CHAT(Color color) {
+		for (ChatColor chatColor : chatcolor_to_color.keySet()) {
+			if (chatcolor_to_color.get(chatColor).equals(color)) {
+				return chatColor;
+			}
+		}
+		return ChatColor.WHITE;
+	}
+
+	public static ChatColor DYE_TO_CHAT(DyeColor dyeColor) {
+		for (ChatColor chatColor : chatcolor_to_dyecolor.keySet()) {
+			if (chatcolor_to_dyecolor.get(chatColor).equals(dyeColor)) {
+				return chatColor;
+			}
+		}
+		return ChatColor.WHITE;
+	}
+
 	public static Color COLORSTR_TO_COLORRGB(String color) {
 		if (color.startsWith("#") && color.length() >= 2) {
 			String rgbstring = color.substring(1);

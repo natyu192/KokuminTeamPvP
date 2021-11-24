@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -65,11 +66,25 @@ public class ConfigItem {
 		if (config.isSet("leather_color")) {
 			Color color = ColorUtils.COLORSTR_TO_COLORRGB(config.getString("leather_color"));
 			if (color == null) {
-				TeamPvP.sendConsoleMessage("§d" + material.toString() + " color null");
+				TeamPvP.sendConsoleMessage("§d" + material.toString() + ": color null");
 			}
 			LeatherArmorMeta lam = (LeatherArmorMeta) this.itemMeta;
 			lam.setColor(color);
 			this.itemStack.setItemMeta(lam);
+		}
+		if (config.isSet("color")) {
+			DyeColor color = DyeColor.valueOf(config.getString("color").toUpperCase());
+			if (color == null) {
+				TeamPvP.sendConsoleMessage("§d" + material.toString() + ": color null");
+			}
+			if (material == Material.WOOL) {
+				this.damage = color.getData();
+			} else if (material == Material.STAINED_GLASS ||
+					material == Material.STAINED_GLASS_PANE ||
+					material == Material.STAINED_CLAY) {
+				this.damage = color.getData();
+			}
+			this.itemStack.setDurability(damage);
 		}
 		if (config.isSet("unbreakable")) {
 			boolean unbreakable = config.getBoolean("unbreakable");

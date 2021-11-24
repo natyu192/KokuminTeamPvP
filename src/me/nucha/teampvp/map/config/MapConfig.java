@@ -1,6 +1,7 @@
 package me.nucha.teampvp.map.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamGameType;
 import me.nucha.teampvp.map.MapInfo;
+import me.nucha.teampvp.map.MapTutorial;
 import me.nucha.teampvp.map.item.ConfigItem;
 import me.nucha.teampvp.map.item.KitItem;
 import me.nucha.teampvp.map.region.Region;
@@ -30,6 +32,20 @@ public class MapConfig {
 
 	public MapConfig(MapInfo mapInfo) {
 		this.config = mapInfo.getConfig();
+	}
+
+	public List<String> getAuthors() {
+		if (config.isSet("authors")) {
+			return config.getStringList("authors");
+		}
+		return null;
+	}
+
+	public List<String> getDescription() {
+		if (config.isSet("description")) {
+			return config.getStringList("description");
+		}
+		return null;
 	}
 
 	public String getName() {
@@ -61,6 +77,13 @@ public class MapConfig {
 		return true;
 	}
 
+	public int getNoDamageRadius() {
+		if (config.isSet("no-damage-radius")) {
+			return config.getInt("no-damage-radius");
+		}
+		return 3;
+	}
+
 	public List<Region> getRegions() {
 		List<Region> regions = new ArrayList<>();
 		if (config.isSet("regions")) {
@@ -86,6 +109,38 @@ public class MapConfig {
 		return regions;
 	}
 
+	public List<MapTutorial> getTutorials() {
+		List<MapTutorial> tutorials = new ArrayList<>();
+		if (config.isSet("tutorial")) {
+			tutorials.add(new MapTutorial(null,
+					Arrays.asList(new String[] { "&aこのマップにはチュートリアルがあります", "&aこの本を&e右クリック&aで次のページへ、&e左クリック&aで", "&a前のページへ移動することができます。" })));
+			for (String sectionName : config.getConfigurationSection("tutorial").getKeys(false)) {
+				ConfigurationSection section = config.getConfigurationSection("tutorial." + sectionName);
+				Location teleport = null;
+				if (section.isSet("teleport")) {
+					double x = section.getDouble("teleport.x");
+					double y = section.getDouble("teleport.y");
+					double z = section.getDouble("teleport.z");
+					float yaw = (float) section.getDouble("teleport.yaw");
+					float pitch = (float) section.getDouble("teleport.pitch");
+					World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
+					teleport = new Location(world, x, y, z, yaw, pitch);
+				}
+				List<String> messages = new ArrayList<>();
+				if (section.isSet("messages")) {
+					for (String message : section.getStringList("messages")) {
+						messages.add(message);
+					}
+				}
+				tutorials.add(new MapTutorial(teleport, messages));
+				TeamPvP.sendConsoleMessage("Tutorial loaded: " + section.getCurrentPath());
+			}
+			tutorials.add(new MapTutorial(null,
+					Arrays.asList(new String[] { "&dチュートリアルが終了しました！さっそくゲームへ参加してみましょう！", "&a手持ちの&fネザースター&aをクリックすると&bチーム選択メニュー&aが表示されます" })));
+		}
+		return tutorials;
+	}
+
 	public List<PvPTeam> getTeams() {
 		List<PvPTeam> teams = new ArrayList<>();
 		if (config.isSet("teams")) {
@@ -107,7 +162,7 @@ public class MapConfig {
 		double z = config.getDouble("location.spectator.z");
 		float yaw = (float) config.getDouble("location.spectator.yaw");
 		float pitch = (float) config.getDouble("location.spectator.pitch");
-		World world = Bukkit.getWorld(getName());
+		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 		return new Location(world, x, y, z, yaw, pitch);
 	}
 
@@ -121,7 +176,7 @@ public class MapConfig {
 		double z = config.getDouble("location." + teamId + ".z");
 		float yaw = (float) config.getDouble("location." + teamId + ".yaw");
 		float pitch = (float) config.getDouble("location." + teamId + ".pitch");
-		World world = Bukkit.getWorld(getName());
+		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 		return new Location(world, x, y, z, yaw, pitch);
 	}
 

@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import me.nucha.teampvp.TeamPvP;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
+
+import me.nucha.teampvp.TeamPvP;
 
 public class Region {
 
@@ -54,6 +55,14 @@ public class Region {
 		return isInAABB(x, y, z);
 	}
 
+	public boolean isIn(Block b) {
+		Location l = b.getLocation();
+		double x = l.getBlockX() + 0.5;
+		double y = l.getBlockY() + 0.5;
+		double z = l.getBlockZ() + 0.5;
+		return isInAABB(x, y, z);
+	}
+
 	public boolean isIn(Player p) {
 		return isIn(p.getLocation());
 	}
@@ -73,19 +82,28 @@ public class Region {
 	}
 
 	public boolean isInAABB(double x, double y, double z) {
-		double x1 = pos1.getX();
+		double minX = Math.min(pos1.getX(), pos2.getX());
+		double minY = Math.min(pos1.getY(), pos2.getY());
+		double minZ = Math.min(pos1.getZ(), pos2.getZ());
+		double maxX = Math.max(pos1.getX(), pos2.getX());
+		double maxY = Math.max(pos1.getY(), pos2.getY());
+		double maxZ = Math.max(pos1.getZ(), pos2.getZ());
+		return x >= minX && x < maxX + 1
+				&& y >= minY && y < maxY + 1
+				&& z >= minZ && z < maxZ + 1;
+		/*double x1 = pos1.getX();
 		double y1 = pos1.getY();
 		double z1 = pos1.getZ();
 		double x2 = pos2.getX();
 		double y2 = pos2.getY();
-		double z2 = pos2.getZ();
-		if (x < 0)
+		double z2 = pos2.getZ();*/
+		/*if (x < 0)
 			x--;
 		if (y < 0)
 			y--;
 		if (z < 0)
-			z--;
-		if (x >= Math.max(x1, x2))
+			z--;*/
+		/*if (x >= Math.max(x1, x2))
 			return false;
 		if (x <= Math.min(x1, x2))
 			return false;
@@ -97,10 +115,10 @@ public class Region {
 			return false;
 		if (z <= Math.min(z1, z2))
 			return false;
-		return true;
+		return true;*/
 	}
 
-	public boolean isInAABB(int x, int y, int z) {
+	/*public boolean isInAABB(int x, int y, int z) {
 		double x1 = pos1.getX();
 		double y1 = pos1.getY();
 		double z1 = pos1.getZ();
@@ -126,7 +144,7 @@ public class Region {
 		if (z <= z2)
 			return false;
 		return true;
-	}
+	}*/
 
 	public boolean contains(RegionPos position) {
 		double x = position.getX();
@@ -183,7 +201,7 @@ public class Region {
 		}
 		defaultBlocks.clear();
 		List<Location> blocks = new ArrayList<>();
-		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getCurrentMap());
+		World world = Bukkit.getWorld(TeamPvP.getInstance().getMapManager().getTheWorldNameThatUsing());
 		int minx = NumberConversions.floor(Math.min(pos1.getX(), pos2.getX()));
 		int miny = NumberConversions.floor(Math.min(pos1.getY(), pos2.getY()));
 		int minz = NumberConversions.floor(Math.min(pos1.getZ(), pos2.getZ()));

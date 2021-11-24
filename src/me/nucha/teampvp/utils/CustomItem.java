@@ -23,6 +23,9 @@ public class CustomItem extends ItemStack {
 		}
 		item.setItemMeta(im);
 		customitem = item;
+		this.setType(type);
+		this.setAmount(amount);
+		this.setItemMeta(im);
 	}
 
 	public CustomItem(Material type, int amount, String name, String... lore) {

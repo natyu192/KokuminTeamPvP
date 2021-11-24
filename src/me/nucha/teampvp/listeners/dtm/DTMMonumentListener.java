@@ -12,13 +12,13 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.NumberConversions;
 
-import me.nucha.kokumin.coin.Coin;
 import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamGameType;
@@ -40,7 +40,7 @@ public class DTMMonumentListener implements Listener {
 		nobroadcast = new HashMap<>();
 	}
 
-	@EventHandler(ignoreCancelled = true)
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
 	public void onBreak(BlockBreakEvent event) {
 		Player p = event.getPlayer();
 		if (plugin.getGameManager().getTeamGameType() == TeamGameType.DTM) {
@@ -55,10 +55,9 @@ public class DTMMonumentListener implements Listener {
 					// if (region.getOwnTeam() != team) {
 					if (region.getOwnTeam() == team) {
 						region.addBroken(b.getLocation());
-						b.getDrops().forEach(item -> item.setType(Material.AIR));
+						b.setType(Material.AIR);
 						int remains = region.remains();
 						StatsManager statsManager = plugin.getStatsManager();
-						statsManager.getStatsInfo(p).add(StatsCategory.MONUMENTS_BROKEN, 1);
 						MonumentObjective obj = (MonumentObjective) gameObjectiveManager.getObjective(region.getName(), team);
 						if (remains > 0) {
 							if (!nobroadcast.containsKey(p) || !nobroadcast.get(p).getName().equalsIgnoreCase(region.getName())) {
@@ -89,17 +88,18 @@ public class DTMMonumentListener implements Listener {
 								if (TeamPvP.pl_kokuminserver) {
 									Player whoBroke = Bukkit.getPlayer(name);
 									if (whoBroke != null) {
-										Coin.addCoin(whoBroke, rewardCoins, "モニュメントの" + percentage + "%を破壊");
+										TeamPvP.addCoin(whoBroke, rewardCoins, "モニュメントの" + percentage + "%を破壊");
 									}
 								}
 							}
 							Bukkit.broadcastMessage(region.getOwnTeam().getDisplayName() + " §eのモニュメント "
 									+ region.getOwnTeam().getColor().toString() + region.getName() + " §eが破壊されました: " + percentages);
-							Location loc = p.getLocation();
+							Location loc = b.getLocation();
 							FireworkUtils.launch(loc.clone().add(0, 0, 1), team, 2);
 							FireworkUtils.launch(loc.clone().add(0, 0, -1), team, 2);
 							FireworkUtils.launch(loc.clone().add(1, 0, 0), team, 2);
 							FireworkUtils.launch(loc.clone().add(-1, 0, 0), team, 2);
+							statsManager.getStatsInfo(p).add(StatsCategory.MONUMENTS_BROKEN, 1);
 						} else {
 							obj.setState(GameObjectiveState.SEMI_COMPLETED);
 						}

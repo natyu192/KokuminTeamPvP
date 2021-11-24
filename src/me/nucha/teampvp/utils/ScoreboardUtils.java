@@ -209,6 +209,7 @@ public class ScoreboardUtils {
 				replaceScore(p, sbScore--, "§7" + date);
 				replaceScore(p, sbScore--, "§f§r");
 				replaceScore(p, sbScore--, "§e", "Duration: §b", toMinAndSec(gameManager.getDuration()));
+				replaceScore(p, sbScore--, "§r§" + Integer.toHexString(sbScore));
 				replaceScore(p, sbScore--, "§e----- MAX §c" + tdmScoreManager.getMaxscore() + " §e-----");
 				for (PvPTeam team : teamManager.getTeams()) {
 					replaceScore(p, sbScore--, "", team.getDisplayName(), ": " + String.valueOf(tdmScoreManager.getScore(team)));
@@ -236,8 +237,9 @@ public class ScoreboardUtils {
 								monumentRegion.getName(), monumentRegion.getOwnTeam());
 						objective.displayOnScoreboard(p, sbScore--);
 					}
+					replaceScore(p, sbScore--, "§r§" + Integer.toHexString(sbScore));
 				}
-				replaceScore(p, sbScore--, " ");
+				// replaceScore(p, sbScore--, " ");
 				replaceScore(p, sbScore--, "§aMap: §f" + plugin.getMapManager().getCurrentMap());
 			}
 			if (gameManager.getTeamGameType() == TeamGameType.CTW) {
@@ -260,8 +262,9 @@ public class ScoreboardUtils {
 								woolObjective.getDisplayName(), woolObjective.getOwnTeam());
 						objective.displayOnScoreboard(p, sbScore--);
 					}
+					replaceScore(p, sbScore--, "§r§" + Integer.toHexString(sbScore));
 				}
-				replaceScore(p, sbScore--, " ");
+				// replaceScore(p, sbScore--, " ");
 				replaceScore(p, sbScore--, "§aMap: §f" + plugin.getMapManager().getCurrentMap());
 			}
 			if (gameManager.getTeamGameType() == TeamGameType.ANNI) {
@@ -284,8 +287,9 @@ public class ScoreboardUtils {
 								nexusObjective.getDisplayName(), nexusObjective.getOwnTeam());
 						objective.displayOnScoreboard(p, sbScore--);
 					}
+					replaceScore(p, sbScore--, "§r§" + Integer.toHexString(sbScore));
 				}
-				replaceScore(p, sbScore--, " ");
+				// replaceScore(p, sbScore--, " ");
 				replaceScore(p, sbScore--, "§aMap: §f" + plugin.getMapManager().getCurrentMap());
 			}
 		}

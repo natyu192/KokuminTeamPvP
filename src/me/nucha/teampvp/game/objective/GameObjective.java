@@ -1,10 +1,10 @@
 package me.nucha.teampvp.game.objective;
 
-import me.nucha.teampvp.game.TeamGameType;
-import me.nucha.teampvp.game.PvPTeam;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import me.nucha.teampvp.game.PvPTeam;
+import me.nucha.teampvp.game.TeamGameType;
 
 public abstract class GameObjective {
 
@@ -50,4 +50,6 @@ public abstract class GameObjective {
 	public abstract void updateStateOnScoreboard();
 
 	public abstract void displayOnScoreboard(Player p, int score);
+
+	public abstract String getText();
 }

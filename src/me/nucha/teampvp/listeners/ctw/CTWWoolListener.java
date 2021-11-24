@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -16,7 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
-import me.nucha.kokumin.coin.Coin;
 import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamGameType;
@@ -24,6 +24,8 @@ import me.nucha.teampvp.game.objective.GameObjective;
 import me.nucha.teampvp.game.objective.GameObjectiveManager;
 import me.nucha.teampvp.game.objective.GameObjectiveState;
 import me.nucha.teampvp.game.objective.WoolObjective;
+import me.nucha.teampvp.game.stats.StatsCategory;
+import me.nucha.teampvp.game.stats.StatsManager;
 import me.nucha.teampvp.utils.FireworkUtils;
 
 public class CTWWoolListener implements Listener {
@@ -57,7 +59,7 @@ public class CTWWoolListener implements Listener {
 									+ woolObjective.getWoolName() + " §7を取得しました");
 							if (TeamPvP.pl_kokuminserver) {
 								if (!woolObjective.hasPickedAtLeastOnce(p)) {
-									Coin.addCoin(p, 50, "羊毛を取得");
+									TeamPvP.addCoin(p, 50, "羊毛を取得");
 								}
 							}
 							woolObjective.picked(p);
@@ -91,7 +93,7 @@ public class CTWWoolListener implements Listener {
 									+ woolObjective.getWoolName() + " §7を取得しました");
 							if (TeamPvP.pl_kokuminserver) {
 								if (!woolObjective.hasPickedAtLeastOnce(p)) {
-									Coin.addCoin(p, 50, "羊毛を取得");
+									TeamPvP.addCoin(p, 50, "羊毛を取得");
 								}
 							}
 							woolObjective.picked(p);
@@ -120,7 +122,7 @@ public class CTWWoolListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlace(BlockPlaceEvent event) {
 		if (plugin.getGameManager().getTeamGameType() == TeamGameType.CTW) {
 			Block b = event.getBlock();
@@ -138,12 +140,14 @@ public class CTWWoolListener implements Listener {
 					if (woolObjective.getOwnTeam().equals(team) && woolObjective.getLocation().equals(b.getLocation())) {
 						if (woolObjective.getColor().equals(color)) {
 							event.setCancelled(false);
+							StatsManager statsManager = plugin.getStatsManager();
+							statsManager.getStatsInfo(p).add(StatsCategory.WOOLS_PLACED, 1);
 							woolObjective.place();
 							woolObjective.setState(GameObjectiveState.COPLETED);
 							Bukkit.broadcastMessage(p.getDisplayName() + " §7が " + woolObjective.getChatColor()
 									+ woolObjective.getWoolName() + " §7を設置しました");
 							if (TeamPvP.pl_kokuminserver) {
-								Coin.addCoin(p, 150, "羊毛を設置");
+								TeamPvP.addCoin(p, 150, "羊毛を設置");
 							}
 							FireworkUtils.launch(b.getLocation().add(0.5, 0, 0.5), team, 1);
 						} else {
