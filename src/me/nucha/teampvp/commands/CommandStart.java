@@ -1,12 +1,12 @@
 package me.nucha.teampvp.commands;
 
-import me.nucha.teampvp.TeamPvP;
-import me.nucha.teampvp.game.MatchState;
-
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+
+import me.nucha.teampvp.TeamPvP;
+import me.nucha.teampvp.game.MatchState;
 
 public class CommandStart implements CommandExecutor {
 
@@ -32,13 +32,13 @@ public class CommandStart implements CommandExecutor {
 			}
 			if (!StringUtils.isNumeric(args[0])) {
 				sender.sendMessage("§cカウントは数字で指定してください");
-				sender.sendMessage("§c使い方: /start [秒数]");
+				sender.sendMessage("§c使い方: /gamestart [秒数]");
 				return true;
 			}
 			int count = Integer.valueOf(args[0]);
 			if (count <= 0) {
 				sender.sendMessage("§cカウントは1秒以上を指定してください");
-				sender.sendMessage("§c使い方: /start [秒数]");
+				sender.sendMessage("§c使い方: /gamestart [秒数]");
 				return true;
 			}
 			plugin.getGameManager().startGame(count);

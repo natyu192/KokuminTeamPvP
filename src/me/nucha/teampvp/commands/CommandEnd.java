@@ -26,7 +26,7 @@ public class CommandEnd implements CommandExecutor {
 				PvPTeam winner = plugin.getTeamManager().getTeamById(args[0]);
 				if (winner == null) {
 					sender.sendMessage("§c" + args[0] + "という ID のチームが存在しません");
-					sender.sendMessage("§c使い方: /end [teamId]");
+					sender.sendMessage("§c使い方: /gameend [teamId]");
 					return true;
 				}
 				List<PvPTeam> winners = new ArrayList<>();
