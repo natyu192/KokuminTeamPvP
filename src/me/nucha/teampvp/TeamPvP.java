@@ -125,12 +125,12 @@ public class TeamPvP extends JavaPlugin {
 			List<File> mapFiles = Arrays.asList(fileMaps.listFiles());
 			List<String> mapRotation = ConfigUtil.map_rotation;
 			if (!(mapFiles.size() > 0)) {
-				sendConsoleMessage("§cmapsファイルにマップ(world)がひとつもありません\nプラグインを無効化します");
+				sendConsoleMessage("§cmapsファイルにマップ(world)がひとつもありません\n§cプラグインを無効化します");
 				getServer().getPluginManager().disablePlugin(this);
 				return false;
 			}
 			if (mapRotation == null) {
-				sendConsoleMessage("§cconfig.ymlにローテーション設定がされていません\nプラグインを無効化します");
+				sendConsoleMessage("§cconfig.ymlにローテーション設定がされていません\n§cプラグインを無効化します");
 				List<String> sampleRotation = new ArrayList<>();
 				sampleRotation.add("Map 1");
 				sampleRotation.add("Map 2");
@@ -170,7 +170,7 @@ public class TeamPvP extends JavaPlugin {
 				}
 			}
 			if (mapInfos.isEmpty()) {
-				sendConsoleMessage("§cローテーションに設定されているマップ(world)で読み込めるものがありませんでした\nプラグインを無効化します");
+				sendConsoleMessage("§cローテーションに設定されているマップ(world)で読み込めるものがありませんでした\n§cプラグインを無効化します");
 				getServer().getPluginManager().disablePlugin(this);
 				return false;
 			}
@@ -346,7 +346,8 @@ public class TeamPvP extends JavaPlugin {
 	}
 
 	public static void sendConsoleMessage(String text) {
-		console.sendMessage(prefix + text);
+		for (String s : text.split("\n"))
+			console.sendMessage(prefix + s);
 	}
 
 	public static void sendWarnMessage(Player p, String text) {
