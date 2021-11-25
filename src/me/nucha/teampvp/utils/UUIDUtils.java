@@ -27,6 +27,9 @@ public class UUIDUtils {
 	}
 
 	public static void shutdown() {
+		if (uuidYml == null) {
+			return;
+		}
 		try {
 			uuidYml.save(uuidFile);
 		} catch (IOException e) {

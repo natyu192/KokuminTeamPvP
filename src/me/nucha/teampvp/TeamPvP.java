@@ -97,7 +97,9 @@ public class TeamPvP extends JavaPlugin {
 		mapInfos = new ArrayList<MapInfo>();
 		MatchState.setState(MatchState.WAITING);
 
-		loadMaps();
+		if (!loadMaps()) {
+			return;
+		}
 		loadManagers();
 		loadListeners();
 		loadCommands();
@@ -112,17 +114,20 @@ public class TeamPvP extends JavaPlugin {
 		StaffManager.shutdown();
 	}
 
-	private void loadMaps() {
+	private boolean loadMaps() {
 		File fileMaps = new File(getDataFolder() + "/maps");
 		if (fileMaps.mkdir()) {
 			sendConsoleMessage("§amapsファイルを生成しました: " + getDataFolder() + "/maps");
+			sendConsoleMessage("§cmapsファイルにマップを入れて、再起動してください");
+			getServer().getPluginManager().disablePlugin(this);
+			return false;
 		} else {
 			List<File> mapFiles = Arrays.asList(fileMaps.listFiles());
 			List<String> mapRotation = ConfigUtil.map_rotation;
 			if (!(mapFiles.size() > 0)) {
 				sendConsoleMessage("§cmapsファイルにマップ(world)がひとつもありません\nプラグインを無効化します");
 				getServer().getPluginManager().disablePlugin(this);
-				return;
+				return false;
 			}
 			if (mapRotation == null) {
 				sendConsoleMessage("§cconfig.ymlにローテーション設定がされていません\nプラグインを無効化します");
@@ -132,7 +137,7 @@ public class TeamPvP extends JavaPlugin {
 				getConfig().set("map-rotation", sampleRotation);
 				saveConfig();
 				getServer().getPluginManager().disablePlugin(this);
-				return;
+				return false;
 			}
 
 			for (String mapNameRot : mapRotation) {
@@ -167,9 +172,10 @@ public class TeamPvP extends JavaPlugin {
 			if (mapInfos.isEmpty()) {
 				sendConsoleMessage("§cローテーションに設定されているマップ(world)で読み込めるものがありませんでした\nプラグインを無効化します");
 				getServer().getPluginManager().disablePlugin(this);
-				return;
+				return false;
 			}
 			sendConsoleMessage("§aマップを読み込みました");
+			return true;
 		}
 	}
 
