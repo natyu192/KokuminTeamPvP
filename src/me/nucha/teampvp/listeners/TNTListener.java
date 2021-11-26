@@ -35,6 +35,10 @@ import net.minecraft.server.v1_8_R3.World;
 
 public class TNTListener implements Listener {
 
+	/*
+	 * かなり未完成です
+	 */
+
 	private TeamPvP plugin;
 
 	public TNTListener(TeamPvP plugin) {

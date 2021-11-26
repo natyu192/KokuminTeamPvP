@@ -33,37 +33,40 @@ public class WoolObjective extends GameObjective {
 	}
 
 	public ChatColor dyeColorToChatColor(DyeColor color) {
-		if (color == DyeColor.BLACK)
+		switch (color) {
+		case BLACK:
 			return ChatColor.BLACK;
-		if (color == DyeColor.BLUE)
+		case BLUE:
 			return ChatColor.DARK_BLUE;
-		if (color == DyeColor.CYAN)
+		case CYAN:
 			return ChatColor.DARK_AQUA;
-		if (color == DyeColor.GRAY)
+		case GRAY:
 			return ChatColor.DARK_GRAY;
-		if (color == DyeColor.GREEN)
+		case GREEN:
 			return ChatColor.DARK_GREEN;
-		if (color == DyeColor.LIME)
+		case LIME:
 			return ChatColor.GREEN;
-		if (color == DyeColor.LIGHT_BLUE)
+		case LIGHT_BLUE:
 			return ChatColor.BLUE;
-		if (color == DyeColor.MAGENTA)
+		case MAGENTA:
 			return ChatColor.LIGHT_PURPLE;
-		if (color == DyeColor.ORANGE)
+		case ORANGE:
 			return ChatColor.GOLD;
-		if (color == DyeColor.PINK)
+		case PINK:
 			return ChatColor.RED;
-		if (color == DyeColor.PURPLE)
+		case PURPLE:
 			return ChatColor.DARK_PURPLE;
-		if (color == DyeColor.RED)
+		case RED:
 			return ChatColor.DARK_RED;
-		if (color == DyeColor.SILVER)
+		case SILVER:
 			return ChatColor.GRAY;
-		if (color == DyeColor.WHITE)
+		case WHITE:
 			return ChatColor.WHITE;
-		if (color == DyeColor.YELLOW)
+		case YELLOW:
 			return ChatColor.YELLOW;
-		return null;
+		default:
+			return null;
+		}
 	}
 
 	public List<String> getPickers() {
@@ -135,12 +138,16 @@ public class WoolObjective extends GameObjective {
 			String localTeamName = getWoolName();
 			// TODO add dummy colorcode
 			Team localTeam = ScoreboardUtils.getOrCreateTeam(all, localTeamName);
-			if (getState() == GameObjectiveState.IN_COPLETE) {
+			switch (getState()) {
+			case IN_COPLETE:
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r");
-			} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+				break;
+			case SEMI_COMPLETED:
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r");
-			} else if (getState() == GameObjectiveState.COPLETED) {
+				break;
+			case COPLETED:
 				localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r");
+				break;
 			}
 		}
 	}
@@ -151,24 +158,32 @@ public class WoolObjective extends GameObjective {
 		// TODO add dummy colorcode
 		ScoreboardUtils.replaceScore(p, score, "", localTeamName, "");
 		Team localTeam = ScoreboardUtils.getOrCreateTeam(p, localTeamName);
-		if (getState() == GameObjectiveState.IN_COPLETE) {
+		switch (getState()) {
+		case IN_COPLETE:
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r");
-		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			break;
+		case SEMI_COMPLETED:
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r");
-		} else if (getState() == GameObjectiveState.COPLETED) {
+			break;
+		case COPLETED:
 			localTeam.setPrefix(" " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r");
+			break;
 		}
 	}
 
 	@Override
 	public String getText() {
 		String prefix = null;
-		if (getState() == GameObjectiveState.IN_COPLETE) {
+		switch (getState()) {
+		case IN_COPLETE:
 			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_unpicked() + " §r";
-		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			break;
+		case SEMI_COMPLETED:
 			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_pickedup() + " §r";
-		} else if (getState() == GameObjectiveState.COPLETED) {
+			break;
+		case COPLETED:
 			prefix = " " + dyeColorToChatColor(color) + SymbolUtils.wool_placed() + " §r";
+			break;
 		}
 		return prefix + getWoolName();
 	}

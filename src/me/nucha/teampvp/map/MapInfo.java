@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.nucha.teampvp.TeamPvP;
-import me.nucha.teampvp.game.TeamGameType;
 import me.nucha.teampvp.map.config.AnniConfig;
 import me.nucha.teampvp.map.config.CTWConfig;
 import me.nucha.teampvp.map.config.DTMConfig;
@@ -79,16 +78,14 @@ public class MapInfo {
 
 	public MapConfig getMapConfig() {
 		MapConfig config = new MapConfig(this);
-		if (config.getTeamGameType() == TeamGameType.TDM) {
+		switch (config.getTeamGameType()) {
+		case TDM:
 			return new TDMConfig(this);
-		}
-		if (config.getTeamGameType() == TeamGameType.DTM) {
+		case DTM:
 			return new DTMConfig(this);
-		}
-		if (config.getTeamGameType() == TeamGameType.CTW) {
+		case CTW:
 			return new CTWConfig(this);
-		}
-		if (config.getTeamGameType() == TeamGameType.ANNI) {
+		case ANNI:
 			return new AnniConfig(this);
 		}
 		return config;

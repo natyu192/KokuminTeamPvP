@@ -100,14 +100,18 @@ public class GameManager {
 						plugin.getRegionManager().registerRegion(r);
 					}
 					// TODO Games Initialization
-					if (getTeamGameType() == TeamGameType.DTM) {
+					switch (getTeamGameType()) {
+					case DTM:
 						plugin.getDtmMonumentManager().load();
-					}
-					if (getTeamGameType() == TeamGameType.CTW) {
+						break;
+					case CTW:
 						plugin.getCtwWoolManager().load();
-					}
-					if (getTeamGameType() == TeamGameType.ANNI) {
+						break;
+					case ANNI:
 						plugin.getAnniLocationManager().load();
+						break;
+					case TDM:
+						break;
 					}
 					TeamManager teamManager = plugin.getTeamManager();
 					for (Player player : teamManager.getGamePlayers()) {
@@ -399,54 +403,63 @@ public class GameManager {
 
 	public void setArmorContents(Player p, List<KitItem> kitItems) {
 		for (KitItem ki : kitItems) {
-			if (ki.getSlot() == 40)
+			switch (ki.getSlot()) {
+			case 40:
 				p.getInventory().setHelmet(ki.getItemStack());
-			if (ki.getSlot() == 41)
+				break;
+			case 41:
 				p.getInventory().setChestplate(ki.getItemStack());
-			if (ki.getSlot() == 42)
+				break;
+			case 42:
 				p.getInventory().setLeggings(ki.getItemStack());
-			if (ki.getSlot() == 43)
+				break;
+			case 43:
 				p.getInventory().setBoots(ki.getItemStack());
+				break;
+			}
 		}
 	}
 
 	public void setTeamGameType(TeamGameType teamGameType) {
 		PluginManager pm = plugin.getServer().getPluginManager();
 		if (this.teamGameType != null) { // TODO unregister all handlerlist
-			if (this.teamGameType == TeamGameType.TDM) {
+			switch (this.teamGameType) {
+			case TDM:
 				HandlerList.unregisterAll(tdmCombatListener);
-			}
-			if (this.teamGameType == TeamGameType.DTM) {
+				break;
+			case DTM:
 				HandlerList.unregisterAll(dtmMonumentListener);
-			}
-			if (this.teamGameType == TeamGameType.CTW) {
+				break;
+			case CTW:
 				HandlerList.unregisterAll(ctwWoolListener);
-			}
-			if (this.teamGameType == TeamGameType.ANNI) {
+				break;
+			case ANNI:
 				HandlerList.unregisterAll(anniNexusListener);
 				HandlerList.unregisterAll(enderFurnaceListener);
 				HandlerList.unregisterAll(anniResourceListener);
+				break;
 			}
 		}
 		this.teamGameType = teamGameType;
 		plugin.setGameObjectiveManager(new GameObjectiveManager());
-		if (teamGameType == TeamGameType.TDM) { // TODO Register Listeners each gamemode.
+		switch (teamGameType) { // TODO Register Listeners each gamemode.
+		case TDM:
 			tdmCombatListener = new TDMCombatListener(plugin);
 			pm.registerEvents(tdmCombatListener, plugin);
 			TDMConfig tdmConfig = (TDMConfig) plugin.getMapManager().getCurrentMapInfo().getMapConfig();
 			plugin.setTdmScoreManager(new TDMScoreManager(tdmConfig.getMaxScore()));
-		}
-		if (teamGameType == TeamGameType.DTM) {
+			break;
+		case DTM:
 			plugin.setDtmMonumentManager(new DTMMonumentManager(plugin));
 			dtmMonumentListener = new DTMMonumentListener(plugin);
 			pm.registerEvents(dtmMonumentListener, plugin);
-		}
-		if (teamGameType == TeamGameType.CTW) {
+			break;
+		case CTW:
 			plugin.setCtwWoolManager(new CTWWoolManager(plugin));
 			ctwWoolListener = new CTWWoolListener(plugin);
 			pm.registerEvents(ctwWoolListener, plugin);
-		}
-		if (this.teamGameType == TeamGameType.ANNI) {
+			break;
+		case ANNI:
 			plugin.setAnniLocationManager(new AnniLocationManager(plugin));
 			anniNexusListener = new AnniNexusListener(plugin);
 			enderFurnaceListener = new EnderFurnaceListener(plugin);
@@ -454,6 +467,7 @@ public class GameManager {
 			pm.registerEvents(anniNexusListener, plugin);
 			pm.registerEvents(enderFurnaceListener, plugin);
 			pm.registerEvents(anniResourceListener, plugin);
+			break;
 		}
 	}
 

@@ -84,13 +84,17 @@ public class MonumentObjective extends GameObjective {
 				localTeamSuffix = " §a" + percentage + "%§r";
 			}
 			Team localTeam = ScoreboardUtils.getOrCreateTeam(all, localTeamName + getOwnTeam().getColor());
-			if (getState() == GameObjectiveState.IN_COPLETE) {
+			switch (getState()) {
+			case IN_COPLETE:
 				localTeam.setPrefix(" §c" + SymbolUtils.x() + " §r");
-			} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+				break;
+			case SEMI_COMPLETED:
 				localTeam.setPrefix(" §e" + SymbolUtils.star(2) + " §r");
-			} else if (getState() == GameObjectiveState.COPLETED) {
+				break;
+			case COPLETED:
 				localTeam.setPrefix(" §a" + SymbolUtils.check() + " §r");
 				localTeamSuffix = " §a100%§r";
+				break;
 			}
 			localTeam.setSuffix(localTeamSuffix);
 		}
@@ -118,13 +122,17 @@ public class MonumentObjective extends GameObjective {
 		}
 		ScoreboardUtils.replaceScore(p, score, "", localTeamName + getOwnTeam().getColor(), "");
 		Team localTeam = ScoreboardUtils.getOrCreateTeam(p, localTeamName + getOwnTeam().getColor());
-		if (getState() == GameObjectiveState.IN_COPLETE) {
+		switch (getState()) {
+		case IN_COPLETE:
 			localTeam.setPrefix(" §c" + SymbolUtils.x() + " §r");
-		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			break;
+		case SEMI_COMPLETED:
 			localTeam.setPrefix(" §e" + SymbolUtils.star(2) + " §r");
-		} else if (getState() == GameObjectiveState.COPLETED) {
+			break;
+		case COPLETED:
 			localTeam.setPrefix(" §a" + SymbolUtils.check() + " §r");
 			localTeamSuffix = " §a100%§r";
+			break;
 		}
 		localTeam.setSuffix(localTeamSuffix);
 	}
@@ -151,13 +159,17 @@ public class MonumentObjective extends GameObjective {
 		} else {
 			suffix = " §e" + percentage + "%§r";
 		}
-		if (getState() == GameObjectiveState.IN_COPLETE) {
+		switch (getState()) {
+		case IN_COPLETE:
 			prefix = " §c" + SymbolUtils.x() + " §r";
-		} else if (getState() == GameObjectiveState.SEMI_COMPLETED) {
+			break;
+		case SEMI_COMPLETED:
 			prefix = " §e" + SymbolUtils.star(2) + " §r";
-		} else if (getState() == GameObjectiveState.COPLETED) {
+			break;
+		case COPLETED:
 			prefix = " §a" + SymbolUtils.check() + " §r";
 			suffix = " §a100%§r";
+			break;
 		}
 		return prefix + getDisplayName() + getOwnTeam().getColor() + suffix;
 	}
