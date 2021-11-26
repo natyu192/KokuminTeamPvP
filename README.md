@@ -6,7 +6,7 @@
 - [プラグイン本体](/releases/latest)
 - [サンプルマップ](https://natyu192.github.io/Kokumin%20Space.zip)
 # 前提プラグイン
-- [KokuminCore](../../../KokuminCore)
+- [KokuminCore](../../../KokuminCore/releases/latest)
 ### 入れると良いもの
 - [LunaChat](https://www.spigotmc.org/resources/lunachat.82293/) --- チャットがローマ字から日本語に変換されるようになります。
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit) --- コンパスでテレポートできるようになります。
