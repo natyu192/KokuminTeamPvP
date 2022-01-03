@@ -1,24 +1,19 @@
 package me.nucha.teampvp.listeners;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.github.ucchyocean.lc.LunaChat;
 import com.github.ucchyocean.lc.japanize.JapanizeType;
 
-import me.nucha.core.sql.SQLManager;
+import me.nucha.core.sql.PrefixManager;
 import me.nucha.teampvp.TeamPvP;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamManager;
@@ -27,26 +22,10 @@ public class ChatListener implements Listener {
 
 	private static TeamPvP plugin;
 	private static List<Player> chatSpy;
-	private static HashMap<UUID, String> prefixes;
 
 	public ChatListener(TeamPvP plugin) {
 		ChatListener.plugin = plugin;
 		ChatListener.chatSpy = new ArrayList<>();
-		prefixes = new HashMap<>();
-	}
-
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event) {
-		Player p = event.getPlayer();
-		UUID uuid = p.getUniqueId();
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new BukkitRunnable() {
-			@Override
-			public void run() {
-				String prefix = SQLManager.getPrefix(uuid, true);
-				prefix = ChatColor.translateAlternateColorCodes('&', prefix);
-				prefixes.put(uuid, prefix);
-			}
-		});
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -55,7 +34,7 @@ public class ChatListener implements Listener {
 			return;
 		}
 		Player p = event.getPlayer();
-		String prefix = prefixes.containsKey(p.getUniqueId()) ? prefixes.get(p.getUniqueId()) : "";
+		String prefix = PrefixManager.getPrefix(p.getUniqueId());
 		TeamManager teamManager = plugin.getTeamManager();
 		PvPTeam team = teamManager.getTeam(p);
 		if (event.getMessage().startsWith("!") || event.getMessage().startsWith("！")) {
