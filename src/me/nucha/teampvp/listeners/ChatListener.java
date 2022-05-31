@@ -28,41 +28,24 @@ public class ChatListener implements Listener {
 		ChatListener.chatSpy = new ArrayList<>();
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public static void onChat(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
 		Player p = event.getPlayer();
-		String prefix = PrefixManager.getPrefix(p.getUniqueId());
 		TeamManager teamManager = plugin.getTeamManager();
 		PvPTeam team = teamManager.getTeam(p);
+		String prefix = PrefixManager.getPrefix(p.getUniqueId()) + "§r";
+		String playerName = prefix + team.getColor() + p.getName();
 		if (event.getMessage().startsWith("!") || event.getMessage().startsWith("！")) {
-			event.setMessage(event.getMessage().substring(1));
-			if (TeamPvP.pl_lunachat) {
-				if (event.getMessage().startsWith("#") || event.getMessage().startsWith("＃")) {
-					event.setMessage(event.getMessage().substring(1));
-				} else {
-					event.setMessage(LunaChat.getInstance().getLunaChatAPI().japanize(event.getMessage(), JapanizeType.KANA));
-				}
-			}
-			// event.setFormat("<" + p.getDisplayName() + "§r>: " + event.getMessage());
-			Bukkit.broadcastMessage("<" + prefix + p.getDisplayName() + "§r>: " + event.getMessage());
-			event.setCancelled(true);
+			event.setMessage(japanize(event.getMessage().substring(1)));
+			Bukkit.broadcastMessage("<" + playerName + "§r>: " + event.getMessage());
 		} else {
-			if (TeamPvP.pl_lunachat) {
-				if (event.getMessage().startsWith("#") || event.getMessage().startsWith("＃")) {
-					event.setMessage(event.getMessage().substring(1));
-				} else {
-					event.setMessage(LunaChat.getInstance().getLunaChatAPI().japanize(event.getMessage(), JapanizeType.KANA));
-				}
-			}
-			String teamName = "Team";
-			if (team == teamManager.getSpectatorTeam()) {
-				teamName = "Spectator";
-			}
+			event.setMessage(japanize(event.getMessage()));
+			String teamName = team == teamManager.getSpectatorTeam() ? "Spectator" : "Team";
 			String message = team.getColor().toString() + "[" + teamName + team.getColor().toString() + "] §r<"
-					+ prefix + p.getDisplayName() + "§r>: " + event.getMessage();
+					+ playerName + "§r>: " + event.getMessage();
 			TeamPvP.getConsoleSender().sendMessage(message);
 			for (Player teamMemberOrSpy : Bukkit.getOnlinePlayers()) {
 				if (chatSpy.contains(teamMemberOrSpy)) {
@@ -71,7 +54,18 @@ public class ChatListener implements Listener {
 					teamMemberOrSpy.sendMessage(message);
 				}
 			}
-			event.setCancelled(true);
+		}
+		event.setCancelled(true);
+	}
+
+	private static String japanize(String message) {
+		if (!TeamPvP.pl_lunachat) {
+			return message;
+		}
+		if (message.startsWith("#") || message.startsWith("＃")) {
+			return message.substring(1);
+		} else {
+			return LunaChat.getInstance().getLunaChatAPI().japanize(message, JapanizeType.KANA);
 		}
 	}
 
