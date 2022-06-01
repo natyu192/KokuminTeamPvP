@@ -15,6 +15,7 @@ import com.github.ucchyocean.lc.japanize.JapanizeType;
 
 import me.nucha.core.sql.PrefixManager;
 import me.nucha.teampvp.TeamPvP;
+import me.nucha.teampvp.game.MatchState;
 import me.nucha.teampvp.game.PvPTeam;
 import me.nucha.teampvp.game.TeamManager;
 
@@ -36,10 +37,14 @@ public class ChatListener implements Listener {
 		Player p = event.getPlayer();
 		TeamManager teamManager = plugin.getTeamManager();
 		PvPTeam team = teamManager.getTeam(p);
-		String prefix = PrefixManager.getPrefix(p.getUniqueId()) + "§r";
+		String prefix = TeamPvP.pl_kokuminserver ? PrefixManager.getPrefix(p.getUniqueId()) + "§r" : "";
 		String playerName = prefix + team.getColor() + p.getName();
-		if (event.getMessage().startsWith("!") || event.getMessage().startsWith("！")) {
+		boolean exclamation = event.getMessage().startsWith("!") || event.getMessage().startsWith("！");
+		boolean ended = MatchState.isState(MatchState.CYCLING) || MatchState.isState(MatchState.ENDING);
+		if (exclamation) {
 			event.setMessage(japanize(event.getMessage().substring(1)));
+		}
+		if (ended || exclamation) {
 			Bukkit.broadcastMessage("<" + playerName + "§r>: " + event.getMessage());
 		} else {
 			event.setMessage(japanize(event.getMessage()));
