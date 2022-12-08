@@ -1,7 +1,6 @@
 # なにこれ？？
 マイクラでチームPvPができるBukkit/Spigotプラグインです。<br>
 マイクラのバージョンは1.8.8です。<br>
-詳しくは[動画を見れ](https://www.youtube.com/watch?v=0ZtPD4e_Xq0)ばわかります！
 # ダウンロード
 - [プラグイン本体](https://github.com/natyu192/KokuminTeamPvP/releases/latest)
 - [サンプルマップ](https://natyu192.github.io/Kokumin%20Space.zip)
